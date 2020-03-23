@@ -1,7 +1,28 @@
 #include "main.h"
+#define ChanelNrf 22;
+
+//Bandera para controlar Nrf24L0+
+uint8_t bNrf;
+uint16_t sensor;
+
+//Address Transmisor Nrf24L01+
+uint8_t tx_addr[5];
+//Addres Reseive Nrf24L01+
+uint8_t rx_addr[5];
+//Data sent 
+uint8_t txEnv[8];
+uint8_t rxRec[8];
+
+
+uint32_t valueX;
+uint32_t valueY;
+uint32_t valueZ;
+
 
 int serialPort;
+//Variable store data Gps
 dataGps data;
+
 uint8_t run = 1;
 pthread_t hilo1;
 
@@ -11,15 +32,28 @@ GtkWidget *lbLatitud ;
 GtkWidget *lbLongitud ;
 //GtkWidget *framGps;
 
+/*-------Fuction Prototype-----*/
+void interrupcion();
 void sincronizar();
 gboolean getGps();
 void stop();
+void offLed();
+float fnabs(float a);
+void setAddresNrf(uint8_t idNodo);
 
+/*-------Function Main--------*/
 int main(int argc, char *argv[])
 {
+	bNrf=0;
+
     GtkBuilder      *builder; 
     GtkWidget       *window;
 
+	//Setting Poer CE and SPI
+	RF24L01_init();
+
+	//Settign address nrf and channel
+	
     wiringPiSetup();
   	
 	if(initSerial())
@@ -55,11 +89,14 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+//End main
+
 
 // called when window is closed
 void on_window_destroy()
 {
     gtk_main_quit();
+	offLed();
 	run = 0;
 }
 
@@ -73,7 +110,24 @@ void offLed()
 	digitalWrite(LED,LOW);
 }
 
+float fnabls(float a){
+	if(a<0)
+		a=-a;
+	return a;
+}
 void sincronizar(){
+	getGps();
+}
+
+void interrupcion(){
+	//Return 1:Data Sent, 2:RX_DR, 3:Max_RT
+	bNrf = RF24L01_status();
+	RF24L01_clear_interrupts();
+}
+
+gboolean  getGps(){
+	char buffer[10];
+	
 	if(run == 1){
 		onLed();
 		delay(250);
@@ -84,15 +138,6 @@ void sincronizar(){
 		delay(250);
 		run=1;
 	}
-	getGps();
-}
-
-gboolean  getGps(){
-	char buffer[10];
-    //gtk_widget_show(framGps);                
-
-	//pthread_create(&hilo1,NULL,sincronizar,NULL);
-	//pthread_join(hilo1,NULL);
 
 	data = getDataGps();
 
@@ -117,5 +162,37 @@ void stop(){
 	run=0;
 }
 
+void setAddresNrf(uint8_t idNodo){
+	switch(idNodo){
+		case 1:
+			//Addres Receive
+        	rx_addr[0] = 0x78;
+        	rx_addr[1] = 0x78;
+        	rx_addr[2] = 0x78;
+        	rx_addr[3] = 0x78;
+        	rx_addr[4] = 0x78;
+        	//Addres Transive
+        	tx_addr[0] = 0x78;
+        	tx_addr[1] = 0x78;
+        	tx_addr[2] = 0x78;
+        	tx_addr[3] = 0x78;
+        	tx_addr[4] = 0x78;
+			break;
+		default:
+			//Addres Receive
+        	rx_addr[0] = 0x78;
+        	rx_addr[1] = 0x78;
+        	rx_addr[2] = 0x78;
+        	rx_addr[3] = 0x78;
+        	rx_addr[4] = 0x78;
+        	//Addres Transive
+        	tx_addr[0] = 0x78;
+        	tx_addr[1] = 0x78;
+        	tx_addr[2] = 0x78;
+        	tx_addr[3] = 0x78;
+        	tx_addr[4] = 0x78;
+        	break;
+	}
+}
 
 //Fin File

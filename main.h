@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <wiringPi.h>
 #include <time.h>
 #include <gtk/gtk.h>
