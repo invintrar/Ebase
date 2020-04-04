@@ -14,9 +14,9 @@
 #include <wiringPiSPI.h>
 
 /*Definimos los puertos a utilizar*/
-#define RF_CE	3
-#define RF_IRQ 	4
-#define CHANNEL 0
+#define RF_CE		3
+#define RF_IRQ 		4
+#define CHANNEL		22
 
 #define RF24L01_CS_setOutput()	 	pinMode(RF_CS, OUTPUT)
 #define RF24L01_CS_setHigh() 	 	digitalWrite(RF_CS, HIGH)
@@ -221,13 +221,11 @@ void RF24L01_init(void);
 
 void RF24L01_setup(uint8_t *tx_addr, uint8_t *rx_addr, uint8_t channel);
 
-void RF24L01_write_payload(uint8_t *data, uint8_t length);
-
 void RF24L01_read_payload(uint8_t *data, uint8_t length);
 
 void RF24L01_set_mode_RX(void);
 
-void sendData(uint8_t data[],uint8_t size);
+void RF24L01_sendData(uint8_t data[],uint8_t size);
 
 uint8_t RF24L01_status(void);
 

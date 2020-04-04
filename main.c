@@ -1,113 +1,118 @@
+/**
+ * @author:DzhL
+ */
+
 #include "main.h"
-#define ChanelNrf 22;
 
-//Bandera para controlar Nrf24L0+
-uint8_t bNrf;
-uint16_t sensor;
-
-//Address Transmisor Nrf24L01+
-uint8_t tx_addr[5];
-//Addres Reseive Nrf24L01+
-uint8_t rx_addr[5];
-//Data sent 
-uint8_t txEnv[8];
-uint8_t rxRec[8];
-
-
-uint32_t valueX;
-uint32_t valueY;
-uint32_t valueZ;
-
-
-int serialPort;
-//Variable store data Gps
-dataGps data;
-
-uint8_t run = 1;
-pthread_t hilo1;
-
-GtkWidget *lbTime ;
-GtkWidget *lbDate ;
-GtkWidget *lbLatitud ;
-GtkWidget *lbLongitud ;
-//GtkWidget *framGps;
-
-/*-------Fuction Prototype-----*/
-void interrupcion();
-void sincronizar();
-gboolean getGps();
-void stop();
-void offLed();
-float fnabs(float a);
-void setAddresNrf(uint8_t idNodo);
-
-/*-------Function Main--------*/
+/**
+ * Function Main
+ */
 int main(int argc, char *argv[])
 {
 	bNrf=0;
+	bBlinkLed = 1;
 
     GtkBuilder      *builder; 
     GtkWidget       *window;
 
+    wiringPiSetup();
+
 	//Setting Poer CE and SPI
 	RF24L01_init();
-
-	//Settign address nrf and channel
-	
-    wiringPiSetup();
   	
+
 	if(initSerial())
   	{
   		printf("Error Setup Serial\n");
   	}
 
-
+	
+	//Set pin output
     pinMode(LED,OUTPUT);
 
-	
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new();
 
-    gtk_builder_add_from_file (builder, "gui.glade", NULL);
+    gtk_builder_add_from_file (builder, "guiEb.glade", NULL);
 
-    window = GTK_WIDGET(gtk_builder_get_object(builder, "windowMain"));
+    window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
     gtk_builder_connect_signals(builder, NULL);
+
 	lbTime = GTK_WIDGET(gtk_builder_get_object(builder, "lbTime"));
 	lbDate = GTK_WIDGET(gtk_builder_get_object(builder, "lbDate"));
 	lbLatitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLatitud"));
 	lbLongitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLongitud"));
-	//framGps = GTK_WIDGET(gtk_builder_get_object(builder, "framGps"));
+	ScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder, "ScrollWindow"));
+	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
+	fSinc = GTK_WIDGET(gtk_builder_get_object(builder, "fSinc"));
+
+
+	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(TextView));
 
     g_object_unref(builder);
 
-	g_timeout_add_seconds(1,(GSourceFunc) getGps,NULL);
+	gtk_widget_hide(fSinc);
+
+	g_timeout_add_seconds(1,(GSourceFunc) showDataGps,NULL);
 
     gtk_widget_show(window);                
 
     gtk_main();
 
-    return 0;
-}
-//End main
+    return EXIT_SUCCESS;
+}//End main
 
 
-// called when window is closed
+// Called when window is closed
 void on_window_destroy()
 {
     gtk_main_quit();
-	offLed();
-	run = 0;
+	LedOff();
 }
 
-void onLed()
-{
-	digitalWrite(LED,HIGH);
+// Button for Init mesure of station video
+void on_bipEv_clicked(){
+	// Set Addres for Transmitir
+	setAddresNrf(0);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	txEnv[0] = data.second;
+	txEnv[1] = data.minute;
+	txEnv[2] = data.hour;
+	txEnv[3] = data.day;
+	txEnv[4] = data.month;
+	txEnv[5] = data.year;
+
+	RF24L01_sendData(txEnv,8);
+
+	gtk_widget_show(fSinc);
+	
+    strcpy(tmp,"Estableciendo conexion con la Estacion Video\n");
+	gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+			
+
 }
 
-void offLed()
+// Button for end mesure of station video
+void on_bfpEv_clicked(){
+	RF24L01_powerDown();
+    strcpy(tmp,"Conexion cerrada con la Estacion Video\n");
+	gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+
+
+}
+
+void blinkLed()
 {
-	digitalWrite(LED,LOW);
+	if(bBlinkLed){
+		bBlinkLed = 0;
+		LedOn();
+	}else{
+		bBlinkLed = 1;
+		LedOff();
+	}
 }
 
 float fnabls(float a){
@@ -115,29 +120,37 @@ float fnabls(float a){
 		a=-a;
 	return a;
 }
-void sincronizar(){
-	getGps();
-}
 
 void interrupcion(){
+	printf("Interrupcion\n");
 	//Return 1:Data Sent, 2:RX_DR, 3:Max_RT
 	bNrf = RF24L01_status();
+	switch(bNrf){
+		case 1:
+			strcpy(tmp,"Data Sent\n");
+			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+			break;
+		case 2:
+			strcpy(tmp,"Data Rady from RX\n");
+			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+			break;
+		case 3:
+			strcpy(tmp,"Maximu Retramition Transmitio\n");
+			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+			break;
+		default:
+			strcpy(tmp,"Se produjo Interrupcion\n");
+			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+			break;
+	}
+
 	RF24L01_clear_interrupts();
 }
 
-gboolean  getGps(){
+gboolean showDataGps(){
 	char buffer[10];
 	
-	if(run == 1){
-		onLed();
-		delay(250);
-		run=0;
-	}
-	else{
-		offLed();
-		delay(250);
-		run=1;
-	}
+	blinkLed();
 
 	data = getDataGps();
 
@@ -155,16 +168,27 @@ gboolean  getGps(){
 	data.segundosLongitud, 34, data.longitud);
 	gtk_label_set_text(GTK_LABEL(lbLongitud), buffer);
 
-	return TRUE;
-}
-
-void stop(){
-	run=0;
+	return 1;
 }
 
 void setAddresNrf(uint8_t idNodo){
 	switch(idNodo){
-		case 1:
+		case 0://Station video
+			//Addres Receive
+        	rx_addr[0] = 0x78;
+        	rx_addr[1] = 0x78;
+        	rx_addr[2] = 0x78;
+        	rx_addr[3] = 0x78;
+        	rx_addr[4] = 0x78;
+        	//Addres Transive
+        	tx_addr[0] = 0x78;
+        	tx_addr[1] = 0x78;
+        	tx_addr[2] = 0x78;
+        	tx_addr[3] = 0x78;
+        	tx_addr[4] = 0x78;
+			break;
+
+		case 1://Nodo1
 			//Addres Receive
         	rx_addr[0] = 0x78;
         	rx_addr[1] = 0x78;
@@ -195,4 +219,6 @@ void setAddresNrf(uint8_t idNodo){
 	}
 }
 
-//Fin File
+/**
+ * Fin File
+ */

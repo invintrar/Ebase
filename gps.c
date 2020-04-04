@@ -1,3 +1,7 @@
+/**
+ * @author:DzhL
+ */
+
 #include "gps.h"
 
 uint8_t initSerial(void)
