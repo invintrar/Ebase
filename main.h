@@ -22,16 +22,14 @@
 #include "gps.h"
 
 
-
 #define LED 		7
-#define CHANNEL		22
 
 #define Led_SetOutput()		pinMode(LED, OUTPUT)
 #define LedOn()        		digitalWrite(LED, HIGH)
 #define LedOff()		 	digitalWrite(LED, LOW)
 
 //Flag for control Nrf24L0+
-uint8_t bNrf;
+uint8_t bNrf = 0;
 //Flag use for toogle Led
 uint8_t bBlinkLed;
 uint16_t sensor;
@@ -64,6 +62,7 @@ GtkWidget *TextView;
 GtkWidget *ScrollWindow;
 GtkTextBuffer *TextBuffer;
 GtkWidget *fSinc;
+GtkTextIter iter;
 
 /**
  * Fuction Prototype

@@ -19,7 +19,9 @@ int main(int argc, char *argv[])
 
 	//Setting Poer CE and SPI
 	RF24L01_init();
-  	
+
+	//Seting Interrupt
+	wiringPiISR(RF_IRQ, INT_EDGE_FALLING, interrupcion);
 
 	if(initSerial())
   	{
@@ -53,6 +55,8 @@ int main(int argc, char *argv[])
     g_object_unref(builder);
 
 	gtk_widget_hide(fSinc);
+	
+	gtk_text_buffer_get_iter_at_offset(TextBuffer, &iter, 0);
 
 	g_timeout_add_seconds(1,(GSourceFunc) showDataGps,NULL);
 
@@ -67,6 +71,7 @@ int main(int argc, char *argv[])
 // Called when window is closed
 void on_window_destroy()
 {
+	RF24L01_powerDown();
     gtk_main_quit();
 	LedOff();
 }
@@ -85,13 +90,12 @@ void on_bipEv_clicked(){
 	txEnv[4] = data.month;
 	txEnv[5] = data.year;
 
-	RF24L01_sendData(txEnv,8);
-
 	gtk_widget_show(fSinc);
 	
     strcpy(tmp,"Estableciendo conexion con la Estacion Video\n");
-	gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
-			
+	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+
+	RF24L01_sendData(txEnv,8);
 
 }
 
@@ -99,9 +103,7 @@ void on_bipEv_clicked(){
 void on_bfpEv_clicked(){
 	RF24L01_powerDown();
     strcpy(tmp,"Conexion cerrada con la Estacion Video\n");
-	gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
-
-
+   	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 }
 
 void blinkLed()
@@ -122,27 +124,27 @@ float fnabls(float a){
 }
 
 void interrupcion(){
-	printf("Interrupcion\n");
 	//Return 1:Data Sent, 2:RX_DR, 3:Max_RT
 	bNrf = RF24L01_status();
 	switch(bNrf){
 		case 1:
 			strcpy(tmp,"Data Sent\n");
-			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		case 2:
 			strcpy(tmp,"Data Rady from RX\n");
-			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		case 3:
 			strcpy(tmp,"Maximu Retramition Transmitio\n");
-			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		default:
 			strcpy(tmp,"Se produjo Interrupcion\n");
-			gtk_text_buffer_set_text(TextBuffer, (const gchar *) tmp, (gint) -1);
+         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 	}
+	
 
 	RF24L01_clear_interrupts();
 }
