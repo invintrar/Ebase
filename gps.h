@@ -32,6 +32,7 @@ extern int serialPort;
 
 uint8_t initSerial(void);
 dataGps getDataGps(void);
+uint8_t testGps(void);
 
 #endif
 /* End File */

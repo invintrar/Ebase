@@ -42,6 +42,7 @@ void readGps(uint8_t *trama){
 
 }//End readGPS
 
+
 //Get Data Gps
 dataGps getDataGps(void)
 {
@@ -73,7 +74,7 @@ dataGps getDataGps(void)
 		trama[aux2] = 0;
 	}
 	
-	//Obtenemos los datos
+	//Get data Gps
 	readGps(trama);
 
 	serialFlush(serialPort);
@@ -87,9 +88,9 @@ dataGps getDataGps(void)
 	}
 
 	if( trama[ pos[1] + 1 ] ==  'V'){
-		printf("Datos no disponibles\n");
 		return gps;
 	}
+	
 
 	//Get Time
 	//Hora
