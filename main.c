@@ -91,6 +91,13 @@ void on_bipEv_clicked()
 
 	gtk_widget_show(fSinc);
 
+	txEnv[0] = data.hour;
+	txEnv[1] = data.minute;
+	txEnv[2] = data.second;
+	txEnv[3] = data.day;
+	txEnv[4] = data.month;
+	txEnv[5] = data.year;
+
 	RF24L01_sendData(txEnv,8);
 
 
@@ -128,6 +135,7 @@ void on_bfpNodo1_clicked()
 
 }
 
+/* Function blink led */
 void blinkLed()
 {
 	if(bBlinkLed){
@@ -137,32 +145,25 @@ void blinkLed()
 		bBlinkLed = 1;
 		LedOff();
 	}
-}
+} // end bllink led
 
+/* Function get abs */
 float fnabls(float a)
 {
 	if(a<0)
 		a=-a;
 	return a;
-}
+} // end get abs
 
 /* Function Interrupcion */
 void interrupcion()
 {
-	//Return 1:Data Sent, 2:RX_DR, 3:Max_RT
+	//Return 1:RX_DR , 2:Data sent, 3:Max_RT
 	bNrf = RF24L01_status();
 
-	switch(bNrf){
+	switch(bNrf)
+	{
 		case 1:
-			sprintf(tmp,"Data Sent\n");
-         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
-			RF24L01_set_mode_RX();
-
-	       	gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
-
-			break;
-		case 2:
 			sprintf(tmp,"Data Rady from RX\n");
     		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 
@@ -173,6 +174,16 @@ void interrupcion()
 			
 			RF24L01_set_mode_RX();
 			bNrf = 0;
+			break;
+	
+		case 2:
+			sprintf(tmp,"Dato Enviado\n");
+         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+
+			RF24L01_set_mode_RX();
+
+	       	gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
+
 			break;
 		case 3:
 			sprintf(tmp, "Maximo numero de retransmisiones\n");
