@@ -13,8 +13,16 @@ GtkWidget       *window;
  */
 int main(int argc, char *argv[])
 {
-	bNrf=0;
+	start_time = 0.0;
+	end_time = 0.0;
+	start_us = 0;
+	end_us = 0;
+	fSinc = 0;
+	bNrf = 0;
 	bBlinkLed = 1;
+
+	gtk_init(&argc, &argv);
+	myCSS();
 
     wiringPiSetup();
 
@@ -29,6 +37,8 @@ int main(int argc, char *argv[])
   		printf("Error Setup Serial\n");
   	}
 
+	// Initialize the timer
+	timer = g_timer_new();
 	
 	//Set pin output
     pinMode(LED,OUTPUT);
@@ -50,6 +60,12 @@ int main(int argc, char *argv[])
 	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
 	fSinc = GTK_WIDGET(gtk_builder_get_object(builder, "fSinc"));
     fNodo1 = GTK_WIDGET(gtk_builder_get_object(builder, "fNodo1"));
+    button = GTK_WIDGET(gtk_builder_get_object(builder, "bipMuestreo"));
+    sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
+    sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
+
+
+	gtk_widget_set_name(button, "myButton_green");
 
 
 	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(TextView));
@@ -90,16 +106,8 @@ void on_bipEv_clicked()
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 
 	gtk_widget_show(fSinc);
-
-	txEnv[0] = data.hour;
-	txEnv[1] = data.minute;
-	txEnv[2] = data.second;
-	txEnv[3] = data.day;
-	txEnv[4] = data.month;
-	txEnv[5] = data.year;
-
-	RF24L01_sendData(txEnv,8);
-
+	
+	fSyc = 1;
 
 }
 
@@ -135,6 +143,32 @@ void on_bfpNodo1_clicked()
 
 }
 
+void bipMuestreo_clicked()
+{
+	static gboolean running = FALSE;
+	
+	
+	horasSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbHoras);
+    minutosSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbMinutos);
+
+	sprintf(tmp, "Valor para sincronizar: %02d:%02d\n", horasSyc, minutosSyc);
+	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+
+
+	if(!running)
+	{
+		gtk_widget_set_name(button, "myButton_red");
+		gtk_button_set_label((GtkButton *)button, "Parar   Muestreo");
+	}
+	else
+	{
+		gtk_widget_set_name(button, "myButton_green");
+		gtk_button_set_label((GtkButton *)button, "Iniciar Muestreo");
+	}
+
+	running = !running;
+}
+
 /* Function blink led */
 void blinkLed()
 {
@@ -155,9 +189,12 @@ float fnabls(float a)
 	return a;
 } // end get abs
 
+
+
 /* Function Interrupcion */
 void interrupcion()
 {
+	gulong resta = 0;
 	//Return 1:RX_DR , 2:Data sent, 3:Max_RT
 	bNrf = RF24L01_status();
 
@@ -167,6 +204,23 @@ void interrupcion()
 			sprintf(tmp,"Data Rady from RX\n");
     		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 
+			end_time = g_timer_elapsed(timer, &end_us);
+			if(end_us > start_us)
+			{
+				resta = end_us - start_us;
+			}
+			else
+			{
+				resta = start_us - end_us;
+			}
+			sprintf(tmp,"Elapsed Time: %.6f %ld\n", end_time - start_time, resta);
+    		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+
+			start_time = 0.0;
+			end_time = 0.0;
+			start_us = 0;
+			end_us = 0;
+			
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
 
 			sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
@@ -199,12 +253,31 @@ void interrupcion()
 
 gboolean showDataGps()
 {
-	char buffer[10];
-	
-	blinkLed();
-
 	data = getDataGps();
 
+	if(fSyc)
+	{
+		start_time = g_timer_elapsed(timer,&start_us);
+		txEnv[0] = 1;
+		txEnv[1] = data.second;
+		txEnv[2] = data.minute;
+		txEnv[3] = data.hour;
+		txEnv[4] = data.day;
+		txEnv[5] = data.month;
+		txEnv[6] = data.year; 
+		
+		sprintf(tmp, "Hora Gps: %02d:%02d:%02d\n", data.hour, data.minute, data.second);
+		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+
+		RF24L01_sendData(txEnv,8);
+		fSyc = 0;
+	} // end if
+
+	char buffer[20];
+
+	// Blink Led
+	blinkLed();
+	
 	if(bArchivo == 1 && data.month != 0 && data.day != 0 && data.year != 0)
 	{
 		archivo = fopen("DatosGps.txt","at");
@@ -225,19 +298,19 @@ gboolean showDataGps()
 			bArchivo = 0;
 		}
 
-	} //End if
+	} //End if for save for first sometime in file
 
- 	sprintf(buffer, "%d:%d:%d", data.hour, data.minute, data.second);
+ 	sprintf(buffer, "%02d:%02d:%02d", data.hour, data.minute, data.second);
 	gtk_label_set_text(GTK_LABEL(lbTime), buffer);
 
-	sprintf(buffer, "%d/%d/%d", data.month, data.day, data.year);
+	sprintf(buffer, "%02d/%02d/%02d", data.month, data.day, data.year);
 	gtk_label_set_text(GTK_LABEL(lbDate), buffer);
 	
-	sprintf(buffer, "%d%s%d%c%d%c %c", data.gradosLatitud, "°", data.minutosLatitud, 39, 
+	sprintf(buffer, "%02d%s%02d%c%02d%c %c", data.gradosLatitud, "°", data.minutosLatitud, 39, 
  	data.segundosLatitud, 34, data.latitud);
 	gtk_label_set_text(GTK_LABEL(lbLatitud), buffer);
 
- 	sprintf(buffer, "%d%s%d%c%d%c %c", data.gradosLongitud, "°", data.minutosLongitud, 39, 
+ 	sprintf(buffer, "%02d%s%02d%c%02d%c %c", data.gradosLongitud, "°", data.minutosLongitud, 39, 
 	data.segundosLongitud, 34, data.longitud);
 	gtk_label_set_text(GTK_LABEL(lbLongitud), buffer);
 
@@ -293,6 +366,24 @@ void setAddresNrf(uint8_t idNodo)
         	break;
 	} // End swintch
 } // End setAddresNrf
+
+void myCSS(void)
+{
+    GtkCssProvider *provider;
+    GdkDisplay *display;
+    GdkScreen *screen;
+
+    provider = gtk_css_provider_new ();
+    display = gdk_display_get_default ();
+    screen = gdk_display_get_default_screen (display);
+    gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    const gchar *myCssFile = "mystyle.css";
+    GError *error = 0;
+
+    gtk_css_provider_load_from_file(provider, g_file_new_for_path(myCssFile), &error);
+    g_object_unref (provider);
+} // end my CSS
 
 /**
  * Fin File

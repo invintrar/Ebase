@@ -448,3 +448,225 @@ Fecha: 5/5/20
 Latitud: 2°54'7" S
 Longitud: 78°58'57" W
 
+Datos Gps
+Hora: 20:44:15
+Fecha: 5/5/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 20:46:48
+Fecha: 5/5/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 20:51:4
+Fecha: 5/5/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:7:49
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:13:47
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:15:20
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:25:57
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:43:25
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 22:32:59
+Fecha: 5/6/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 9:37:2
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 9:53:9
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 9:57:9
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 10:4:29
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:35:47
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:53:22
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 13:19:54
+Fecha: 5/7/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 11:16:3
+Fecha: 5/8/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 11:24:20
+Fecha: 5/8/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 11:27:56
+Fecha: 5/8/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:3:56
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:50:33
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:54:58
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:57:41
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:59:10
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 8:59:24
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 9:1:47
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 9:7:46
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 10:0:1
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 10:2:43
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 10:5:25
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 11:51:19
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:8:43
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:35:44
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 12:37:58
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 12:46:11
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:56:8
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 12:59:15
+Fecha: 5/12/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+

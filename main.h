@@ -58,6 +58,21 @@ FILE *archivo;
 
 char tmp[1024];
 
+//Mesure time
+GTimer *timer;
+double start_time;
+double end_time;
+gulong start_us;
+gulong end_us;
+GdkRGBA color;
+
+// Flag Synchronization
+uint8_t fSyc;
+
+// Save value for record
+uint8_t horasSyc = 0;
+uint8_t minutosSyc = 0;
+
 // Variable for GUI
 GtkWidget 		*lbTime ;
 GtkWidget 		*lbDate ;
@@ -70,6 +85,10 @@ GtkWidget	 	*fSinc;
 GtkTextIter  	iter;
 GtkWidget	 	*sock;
 GtkWidget		*fNodo1;
+GtkWidget		*button;
+GtkWidget		*sbHoras;
+GtkWidget		*sbMinutos;
+
 /**
  * Fuction Prototype
  */
@@ -81,6 +100,10 @@ void interrupcion();
 gboolean showDataGps();
 float fnabs(float a);
 void setAddresNrf(uint8_t idNodo);
+void bipMuestreo_clicked();
+void myCSS(void);
+gint getValueSpMinutos();
+gint getValueSpHoras();
 
 #endif
 /**
