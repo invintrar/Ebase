@@ -90,20 +90,20 @@ void RF24L01_setup(uint8_t *tx_addr, uint8_t *rx_addr, uint8_t channel) {
 	// RX payload in data pipe0 (0x11) 
 	RF24L01_reg_RX_PW_P0_content RX_PW_P0;
 	*((uint8_t *)&RX_PW_P0) = 0;
-	// Number of bytes in RX payload in data Pipe0 (8 bytes).
-	RX_PW_P0.RX_PW_P0 = 0x08;
+	// Number of bytes in RX payload in data Pipe0 (12 bytes).
+	RX_PW_P0.RX_PW_P0 = 12;
 	RF24L01_write_register(RF24L01_reg_RX_PW_P0, ((uint8_t *)&RX_PW_P0), 1);
 	// RX payload in data pipe1 (0x12) 
 	RF24L01_reg_RX_PW_P1_content RX_PW_P1;
 	*((uint8_t *)&RX_PW_P1) = 0;
-	// Number of bytes in RX payload in data Pipe1 (8 bytes).
-	RX_PW_P1.RX_PW_P1 = 0x08;
+	// Number of bytes in RX payload in data Pipe1 (12 bytes).
+	RX_PW_P1.RX_PW_P1 = 12;
 	RF24L01_write_register(RF24L01_reg_RX_PW_P1, ((uint8_t *)&RX_PW_P1), 1);
 	// RX payload in data pipe2 (0x08) 
 	RF24L01_reg_RX_PW_P2_content RX_PW_P2;
 	*((uint8_t *)&RX_PW_P2) = 0;
-	//Number of bytes in RX payload in data Pipe2 (8 bytes).
-	RX_PW_P2.RX_PW_P2 = 0x08;
+	//Number of bytes in RX payload in data Pipe2 (12 bytes).
+	RX_PW_P2.RX_PW_P2 = 12;
 	RF24L01_write_register(RF24L01_reg_RX_PW_P2, ((uint8_t *)&RX_PW_P2), 1);
 	//Register Status 
 	RF24L01_reg_STATUS_content status;
