@@ -22,25 +22,24 @@ int main(int argc, char *argv[])
 	bBlinkLed = 1;
 
 	gtk_init(&argc, &argv);
+	// My styles for button
 	myCSS();
 
     wiringPiSetup();
 
-	//Setting Poer CE and SPI
+	// Setting port CE and SPI
 	RF24L01_init();
-
 	//Seting Interrupt
 	wiringPiISR(RF_IRQ, INT_EDGE_FALLING, interrupcion);
-
+	// Initial serial for comunication with Gps
 	if(initSerial())
-  	{
-  		printf("Error Setup Serial\n");
-  	}
-
+	{
+		printf("Error Setup Serial\n");
+	}
 	// Initialize the timer
 	timer = g_timer_new();
 	
-	//Set pin output
+	//Set port of the lmaed how output
     pinMode(LED,OUTPUT);
 
     gtk_init(&argc, &argv);
@@ -58,23 +57,30 @@ int main(int argc, char *argv[])
 	lbLongitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLongitud"));
 	ScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder, "ScrollWindow"));
 	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
+	swN1 = GTK_WIDGET(gtk_builder_get_object(builder, "swN1"));
+	tvN1 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN1"));
 	fSinc = GTK_WIDGET(gtk_builder_get_object(builder, "fSinc"));
-    fNodo1 = GTK_WIDGET(gtk_builder_get_object(builder, "fNodo1"));
+    bxNodo1 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo1"));
     button = GTK_WIDGET(gtk_builder_get_object(builder, "bipMuestreo"));
+	bSyncN1 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN1"));
     sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
     sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
 
 
-	gtk_widget_set_name(button, "myButton_green");
 
+	gtk_widget_set_name(button, "myButton_green");
+	gtk_widget_set_name(bSyncN1, "myButton_blue");
+	
 
 	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(TextView));
+	tbN1 = gtk_text_view_get_buffer (GTK_TEXT_VIEW(tvN1));
 
     g_object_unref(builder);
 
 	gtk_widget_hide(fSinc);
 	
 	gtk_text_buffer_get_iter_at_offset(TextBuffer, &iter, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN1, &iN1, 0);
 
 	g_timeout_add_seconds(1,(GSourceFunc) showDataGps,NULL);
 
@@ -95,65 +101,72 @@ void on_window_destroy()
 }
 
 // Button for Init mesure of station video
-void on_bipEv_clicked()
+void on_bSyncVideo_clicked()
 {
 	// Set Addres for Transmitir
 	setAddresNrf(0);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-
     sprintf(tmp,"Estableciendo conexion con la Estacion Video\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
 	gtk_widget_show(fSinc);
-	
 	fSyc = 1;
 
-}
+} // End on_bSyncVideo
 
-// Button for end mesure of station video
-void on_bfpEv_clicked()
-{
-	RF24L01_powerDown();
-    strcpy(tmp,"Conexion cerrada con la Estacion Video\n");
-   	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-}
 
-void on_bipNodo1_clicked()
+// Action when clicked button sycn Nodo1
+void on_bSyncN1_clicked()
 {
-	archivo = fopen("conf.gp","w");
-	if(archivo == NULL)
+	static gboolean runN1 = FALSE;
+
+	if(!runN1)
 	{
-		printf("Error al crear el archivo\n");
+		// Cuand pulso Sincronizar
+		gtk_widget_set_name(bSyncN1, "myButton_green");
+		gtk_button_set_label((GtkButton *)bSyncN1, "Prueba");
+		sprintf(tmp,"Pulsado Sincronizar\n");
+		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 	}
-	
-	sock = gtk_socket_new();
-	gtk_widget_show(sock);
-    gtk_container_add(GTK_CONTAINER(fNodo1), sock);
-	sockId = gtk_socket_get_id(GTK_SOCKET(sock));
-	fprintf(archivo, "set term x11 window \"%x\" \n", sockId);
-	fclose(archivo);
-	//sprintf(tmp, "gnuplot animacion.gp %#x &", sockId);
-	//Run Gnuplot Animation
-   //	system(tmp);
-} 
+	else
+	{
+		// Cuando pulso Prueba
+		gtk_widget_set_name(bSyncN1, "myButton_blue");
+		gtk_button_set_label((GtkButton *)bSyncN1, "Sincronizar");
+		sprintf(tmp,"Pulsado Prueba\n");
+		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 
-void on_bfpNodo1_clicked()
-{
+		sockN1 = gtk_socket_new ();
+		gtk_widget_set_size_request(sockN1, 400, 400);
+		gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
+		sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
 
-}
+		sprintf(tmp, "Socket created=%#x\n", sockIdN1);
+		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 
+		gtk_widget_show_all(window);
+		
+		sprintf(tmp, "gnuplot -c animacion.gp \"%x\" &\n", sockIdN1);
+		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+
+		system(tmp);
+	}
+
+	runN1 = !runN1;
+
+} // End on_bSyncN1_clicked
+
+
+// Action when clicked button start measuring
 void bipMuestreo_clicked()
 {
 	static gboolean running = FALSE;
-	
 	
 	horasSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbHoras);
     minutosSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbMinutos);
 
 	sprintf(tmp, "Valor para sincronizar: %02d:%02d\n", horasSyc, minutosSyc);
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
 
 	if(!running)
 	{
@@ -167,9 +180,10 @@ void bipMuestreo_clicked()
 	}
 
 	running = !running;
-}
+} // En bipMuestreo_clicked
 
-/* Function blink led */
+
+/* Function blink Led */
 void blinkLed()
 {
 	if(bBlinkLed){
@@ -179,19 +193,19 @@ void blinkLed()
 		bBlinkLed = 1;
 		LedOff();
 	}
-} // end bllink led
+} // end bllinkLed
 
-/* Function get abs */
-float fnabls(float a)
+
+/* Function convert to value absolute */
+float fnabs(float a)
 {
 	if(a<0)
 		a=-a;
 	return a;
-} // end get abs
+} // End fnabs
 
 
-
-/* Function Interrupcion */
+/* Function Interrupcion for NRF24L01+ */
 void interrupcion()
 {
 	gulong resta = 0;
@@ -202,9 +216,10 @@ void interrupcion()
 	{
 		case 1:
 			sprintf(tmp,"Data Rady from RX\n");
-    		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			// End measuring
 			end_time = g_timer_elapsed(timer, &end_us);
+			// Calcule absolute valor
 			if(end_us > start_us)
 			{
 				resta = end_us - start_us;
@@ -214,7 +229,7 @@ void interrupcion()
 				resta = start_us - end_us;
 			}
 			sprintf(tmp,"Elapsed Time: %.6f %ld\n", end_time - start_time, resta);
-    		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 
 			start_time = 0.0;
 			end_time = 0.0;
@@ -225,35 +240,39 @@ void interrupcion()
 
 			sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			
+			// Set in mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
 			bNrf = 0;
 			break;
 	
 		case 2:
 			sprintf(tmp,"Dato Enviado\n");
-         	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			// Set mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
-
-	       	gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
-
+			gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
 			break;
 		case 3:
 			sprintf(tmp, "Maximo numero de retransmisiones\n");
-		   	gtk_text_buffer_insert(TextBuffer, &iter, tmp,-1);
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		default:
 			break;
 	}
-
+	// Clear register for quit interrupt
 	RF24L01_clear_interrupts();
+} // End interrupcion
 
-} // end interrupt
 
+// Function show time each second
 gboolean showDataGps()
 {
+	// Get data of module Gps
+	start_time = g_timer_elapsed(timer,&start_us);
 	data = getDataGps();
+	end_time = g_timer_elapsed(timer, &end_us);
+	timeGps_us = end_us - start_us;
+	printf("Elapsed Time in uS: %d\n", (timeGps_us));
 
 	if(fSyc)
 	{
@@ -265,19 +284,17 @@ gboolean showDataGps()
 		txEnv[4] = data.day;
 		txEnv[5] = data.month;
 		txEnv[6] = data.year; 
-		
+		// Send data for synchronization
+		RF24L01_sendData(txEnv,8);
+
 		sprintf(tmp, "Hora Gps: %02d:%02d:%02d\n", data.hour, data.minute, data.second);
 		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
-		RF24L01_sendData(txEnv,8);
+		
 		fSyc = 0;
-	} // end if
-
-	char buffer[20];
-
+	} // end if 
 	// Blink Led
 	blinkLed();
-	
+	// Use for save date longitud y latitud when start aplication in file.txt
 	if(bArchivo == 1 && data.month != 0 && data.day != 0 && data.year != 0)
 	{
 		archivo = fopen("DatosGps.txt","at");
@@ -297,76 +314,75 @@ gboolean showDataGps()
 			fclose(archivo);
 			bArchivo = 0;
 		}
-
-	} //End if for save for first sometime in file
-
- 	sprintf(buffer, "%02d:%02d:%02d", data.hour, data.minute, data.second);
-	gtk_label_set_text(GTK_LABEL(lbTime), buffer);
-
-	sprintf(buffer, "%02d/%02d/%02d", data.month, data.day, data.year);
-	gtk_label_set_text(GTK_LABEL(lbDate), buffer);
-	
-	sprintf(buffer, "%02d%s%02d%c%02d%c %c", data.gradosLatitud, "°", data.minutosLatitud, 39, 
- 	data.segundosLatitud, 34, data.latitud);
-	gtk_label_set_text(GTK_LABEL(lbLatitud), buffer);
-
- 	sprintf(buffer, "%02d%s%02d%c%02d%c %c", data.gradosLongitud, "°", data.minutosLongitud, 39, 
-	data.segundosLongitud, 34, data.longitud);
-	gtk_label_set_text(GTK_LABEL(lbLongitud), buffer);
-
+	} //End save for first sometime in file.txt
+	//Show data in graphical user interface
+	sprintf( tmp, "%02d:%02d:%02d", data.hour, data.minute, data.second);
+	gtk_label_set_text(GTK_LABEL(lbTime), tmp);
+	sprintf( tmp, "%02d/%02d/%02d", data.month, data.day, data.year);
+	gtk_label_set_text(GTK_LABEL(lbDate), tmp);
+	sprintf( tmp, "%02d%s%02d%c%02d%c %c", data.gradosLatitud, "°", data.minutosLatitud, 39,
+		data.segundosLatitud, 34, data.latitud);
+	gtk_label_set_text(GTK_LABEL(lbLatitud), tmp);
+	sprintf(tmp, "%02d%s%02d%c%02d%c %c", data.gradosLongitud, "°", data.minutosLongitud, 39, 
+		data.segundosLongitud, 34, data.longitud);
+	gtk_label_set_text(GTK_LABEL(lbLongitud), tmp);
 	return 1;
 } // End showDataGps
 
+
+// Set Address of module NRF for Transmition
+void setAddressTx(uint8_t value)
+{
+	uint8_t i;
+
+	for(i=0;i<5;i++)
+	{
+		tx_addr[i] = value;
+	}
+
+} // End setAddressTx
+
+
+// Set Address of module NRF for Recive
+void setAddressRx(uint8_t value)
+{
+	uint8_t i ;
+
+	for(i=0;i<5;i++)
+	{
+		rx_addr[i] = value;
+	}
+
+} // End setAddressRx
+
+
+// Use for select address of the stattion video or  node
 void setAddresNrf(uint8_t idNodo)
 {
 	switch(idNodo)
 	{
 		case 0://Station video
 			//Addres Receive
-        	rx_addr[0] = 0x78;
-        	rx_addr[1] = 0x78;
-        	rx_addr[2] = 0x78;
-        	rx_addr[3] = 0x78;
-        	rx_addr[4] = 0x78;
+			setAddressRx(0x78);
         	//Addres Transive
-        	tx_addr[0] = 0x78;
-        	tx_addr[1] = 0x78;
-        	tx_addr[2] = 0x78;
-        	tx_addr[3] = 0x78;
-        	tx_addr[4] = 0x78;
+			setAddressTx(0x78);
 			break;
-
 		case 1://Nodo1
 			//Addres Receive
-        	rx_addr[0] = 0x78;
-        	rx_addr[1] = 0x78;
-        	rx_addr[2] = 0x78;
-        	rx_addr[3] = 0x78;
-        	rx_addr[4] = 0x78;
-        	//Addres Transive
-        	tx_addr[0] = 0x78;
-        	tx_addr[1] = 0x78;
-        	tx_addr[2] = 0x78;
-        	tx_addr[3] = 0x78;
-        	tx_addr[4] = 0x78;
+			setAddressRx(0xA1);
+		   	//Addres Transive
+			setAddressTx(0x78);
 			break;
 		default:
 			//Addres Receive
-        	rx_addr[0] = 0x78;
-        	rx_addr[1] = 0x78;
-        	rx_addr[2] = 0x78;
-        	rx_addr[3] = 0x78;
-        	rx_addr[4] = 0x78;
+			setAddressRx(0x78);
         	//Addres Transive
-        	tx_addr[0] = 0x78;
-        	tx_addr[1] = 0x78;
-        	tx_addr[2] = 0x78;
-        	tx_addr[3] = 0x78;
-        	tx_addr[4] = 0x78;
-        	break;
+			setAddressTx(0x78);
+			break;
 	} // End swintch
 } // End setAddresNrf
 
+// Use for color button
 void myCSS(void)
 {
     GtkCssProvider *provider;

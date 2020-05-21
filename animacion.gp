@@ -1,6 +1,12 @@
+#print "Second argument: ", ARG1
+#set term x11 window "220001e"
+#name = ARG1
+set terminal x11 window ARG1
+#set terminal x11 title name
+
 unset key; unset border; unset tics;
 
-bind "x" "end=1"
+bind "x" "end=1" 
 
 end = 0; t=0
 while (end == 0){

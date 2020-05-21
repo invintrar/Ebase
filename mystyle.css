@@ -61,5 +61,5 @@ GtkButton {
 #myButton_yellow:hover,
 #myButton_green:hover,
 #myButton_blue:hover{
-   background-color: black;
+   background-color: rgba(0, 0, 0, 0.377);
 }
