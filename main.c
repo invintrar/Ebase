@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 	}
 	// Initialize the timer
 	timer = g_timer_new();
+	timer1 = g_timer_new();
 	
 	//Set port of the lmaed how output
     pinMode(LED,OUTPUT);
@@ -107,7 +108,7 @@ void on_bSyncVideo_clicked()
 	setAddresNrf(0);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-    sprintf(tmp,"Estableciendo conexion con la Estacion Video\n");
+    sprintf(tmp,"Estableciendo conexion con el nodo\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 	gtk_widget_show(fSinc);
 	fSyc = 1;
@@ -127,6 +128,7 @@ void on_bSyncN1_clicked()
 		gtk_button_set_label((GtkButton *)bSyncN1, "Prueba");
 		sprintf(tmp,"Pulsado Sincronizar\n");
 		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+
 	}
 	else
 	{
@@ -208,45 +210,31 @@ float fnabs(float a)
 /* Function Interrupcion for NRF24L01+ */
 void interrupcion()
 {
-	gulong resta = 0;
-	//Return 1:RX_DR , 2:Data sent, 3:Max_RT
+	//Return 1:RX_DR , 2:Data send, 3:Max_RT
 	bNrf = RF24L01_status();
 
 	switch(bNrf)
 	{
-		case 1:
+		case 1: // Data recive
+			// show data received in text view
 			sprintf(tmp,"Data Rady from RX\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			// End measuring
-			end_time = g_timer_elapsed(timer, &end_us);
-			// Calcule absolute valor
-			if(end_us > start_us)
-			{
-				resta = end_us - start_us;
-			}
-			else
-			{
-				resta = start_us - end_us;
-			}
-			sprintf(tmp,"Elapsed Time: %.6f %ld\n", end_time - start_time, resta);
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
-			start_time = 0.0;
-			end_time = 0.0;
-			start_us = 0;
-			end_us = 0;
-			
+			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
-
+			// show data in text view
 			sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set in mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
 			bNrf = 0;
 			break;
-	
-		case 2:
-			sprintf(tmp,"Dato Enviado\n");
+		case 2: // Data send
+			// stop timer
+			g_timer_elapsed(timer1, &end_usTR);
+			// calcule diferencia de time
+			time_usTR = (end_usTR - start_usTR);
+			//show data in text view
+			sprintf(tmp, "Dato Enviado con un timpo: %d us\n", time_usTR);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
@@ -258,7 +246,7 @@ void interrupcion()
 			break;
 		default:
 			break;
-	}
+	} // end switch
 	// Clear register for quit interrupt
 	RF24L01_clear_interrupts();
 } // End interrupcion
@@ -267,16 +255,14 @@ void interrupcion()
 // Function show time each second
 gboolean showDataGps()
 {
+	g_timer_reset(timer);
+	g_timer_elapsed(timer,&start_us);
 	// Get data of module Gps
-	start_time = g_timer_elapsed(timer,&start_us);
 	data = getDataGps();
-	end_time = g_timer_elapsed(timer, &end_us);
-	timeGps_us = end_us - start_us;
-	printf("Elapsed Time in uS: %d\n", (timeGps_us));
-
+	g_timer_elapsed(timer, &end_us);
+	time_us = (end_us - start_us);
 	if(fSyc)
 	{
-		start_time = g_timer_elapsed(timer,&start_us);
 		txEnv[0] = 1;
 		txEnv[1] = data.second;
 		txEnv[2] = data.minute;
@@ -284,10 +270,14 @@ gboolean showDataGps()
 		txEnv[4] = data.day;
 		txEnv[5] = data.month;
 		txEnv[6] = data.year; 
+		txEnv[7] = time_us;
+		txEnv[8] = (time_us >> 8);
 		// Send data for synchronization
-		RF24L01_sendData(txEnv,8);
-
-		sprintf(tmp, "Hora Gps: %02d:%02d:%02d\n", data.hour, data.minute, data.second);
+		g_timer_reset(timer1);
+		g_timer_elapsed(timer1,&start_usTR);
+		RF24L01_sendData(txEnv,12);
+		// show data in text view
+		sprintf(tmp, "Hora Gps: %02d:%02d:%02d:%d\n", data.hour, data.minute, data.second, time_us);
 		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 		
 		fSyc = 0;

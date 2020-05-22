@@ -39,21 +39,21 @@ uint8_t bArchivo = 1;
 uint8_t sockId = 0;
 
 // Address transmitation NRF24L01+
-uint8_t tx_addr[5];
+uint8_t tx_addr[5] = {0};
 // Addres Receive NRF24L01+
-uint8_t rx_addr[5];
+uint8_t rx_addr[5] = {0};
 // Data sent 
-uint8_t txEnv[8];
+uint8_t txEnv[12] = {0};
 // Data receive 
-uint8_t rxRec[8];
+uint8_t rxRec[12] = {0};
 
 //Value of aceleromter
-uint32_t valueX;
-uint32_t valueY;
-uint32_t valueZ;
+uint32_t valueX = 0.0;
+uint32_t valueY = 0.0;
+uint32_t valueZ = 0.0;
 
 // 
-int serialPort;
+int serialPort = 0;
 //Variable store data Gps
 dataGps data;
 
@@ -67,11 +67,16 @@ unsigned int sockIdN1 = 0;
 
 //Mesure time
 GTimer *timer;
+GTimer *timer1;
 double start_time;
 double end_time;
-gulong start_us;
-gulong end_us;
-uint16_t timeGps_us = 0;
+gulong start_us = 0;
+gulong end_us = 0;
+gulong start_usTR = 0;
+gulong end_usTR = 0;
+uint16_t time_us = 0;
+uint16_t time_usTR = 0;
+
 GdkRGBA color;
 
 // Flag Synchronization

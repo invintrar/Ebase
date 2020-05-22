@@ -14,7 +14,7 @@
 #include <wiringPiSPI.h>
 
 /*Definimos los puertos a utilizar*/
-#define RF_CE		3
+#define RF_CE	    3
 #define RF_IRQ 		4
 #define CHANNEL		22
 

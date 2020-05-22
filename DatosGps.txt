@@ -1036,3 +1036,147 @@ Fecha: 5/20/20
 Latitud: 2°54'6" S
 Longitud: 78°58'58" W
 
+Datos Gps
+Hora: 21:28:42
+Fecha: 5/20/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:31:48
+Fecha: 5/20/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:34:38
+Fecha: 5/20/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 9:36:45
+Fecha: 5/21/20
+Latitud: 2°54'44" S
+Longitud: 78°58'27" W
+
+Datos Gps
+Hora: 21:16:13
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:18:30
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:20:50
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:23:50
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:33:23
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:42:58
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 21:52:52
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 21:57:27
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 22:17:1
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 22:29:39
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 23:5:59
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 23:7:30
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 23:9:48
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 23:19:6
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 23:20:33
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 23:52:9
+Fecha: 5/21/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 0:6:27
+Fecha: 5/22/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 0:8:47
+Fecha: 5/22/20
+Latitud: 2°54'7" S
+Longitud: 78°58'57" W
+
+Datos Gps
+Hora: 0:33:55
+Fecha: 5/22/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
+Datos Gps
+Hora: 0:35:50
+Fecha: 5/22/20
+Latitud: 2°54'7" S
+Longitud: 78°58'58" W
+
