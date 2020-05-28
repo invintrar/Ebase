@@ -110,8 +110,15 @@ void on_bSyncVideo_clicked()
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
     sprintf(tmp,"Estableciendo conexion con el nodo\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-	gtk_widget_show(fSinc);
-	fSyc = 1;
+	//gtk_widget_show(fSinc);
+	// Send data for synchronization
+	g_timer_reset(timer1);
+	g_timer_elapsed(timer1,&start_usTR);
+	getTimeClock();
+	RF24L01_sendData(txEnv,12);
+	// show data in text view
+	sprintf(tmp, "Send Time\n");
+	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 
 } // End on_bSyncVideo
 
@@ -123,7 +130,6 @@ void on_bSyncN1_clicked()
 	setAddresNrf(1);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-	fSyc = 1;
 	static gboolean runN1 = FALSE;
 
 	if(!runN1)
@@ -248,6 +254,13 @@ void interrupcion()
 		case 3:
 			sprintf(tmp, "Maximo numero de retransmisiones\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			// stop timer
+			g_timer_elapsed(timer1, &end_usTR);
+			// calcule diferencia de time
+			time_usTR = (end_usTR - start_usTR);
+			//show data in text view
+			sprintf(tmp, "Max RT tiempo: %d us\n", time_usTR);
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		default:
 			break;
@@ -260,72 +273,55 @@ void interrupcion()
 // Function show time each second
 gboolean showDataGps()
 {
-	if(fSyc)
+	// Use for save date longitud y latitud when start aplication in file.txt and match clock
+	if(bArchivo == 1)
 	{
-		txEnv[0] = 1;
-		txEnv[1] = data.second;
-		txEnv[2] = data.minute;
-		txEnv[3] = data.hour;
-		txEnv[4] = data.day;
-		txEnv[5] = data.month;
-		txEnv[6] = data.year; 
-		txEnv[7] = time_us;
-		txEnv[8] = (time_us >> 8);
-		// Send data for synchronization
-		g_timer_reset(timer1);
-		g_timer_elapsed(timer1,&start_usTR);
-		RF24L01_sendData(txEnv,12);
-		// show data in text view
-		sprintf(tmp, "Hora Gps: %02d:%02d:%02d:%02d\n", data.hour, data.minute, data.second, time_us);
-		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-		
-		fSyc = 0;
-	} // end if 
-	// Use for save date longitud y latitud when start aplication in file.txt
-	if(bArchivo == 1 && data.month != 0 && data.day != 0 && data.year != 0)
-	{
-		printf("here\n");
 		g_timer_reset(timer);
 		g_timer_elapsed(timer,&start_us);
 		// Get data of module Gps
 		data = getDataGps();
-		// Set clock of raspberry Pi with data the of Gps
-		timeSet.tm_year = (2000 + data.year) - 1900;
-		timeSet.tm_mon =  data.month;
-		timeSet.tm_mday = data.day;
-		timeSet.tm_hour = data.hour;
-		timeSet.tm_min = data.minute;
-		timeSet.tm_sec = data.second;
-		timeSet.tm_isdst = 0;
-		timeSec = mktime(&timeSet);
-		if (timeSec == -1)
+		// Check out if there is data in Gps
+		if(data.month != 0 && data.day != 0 && data.year != 0)
 		{
-			perror("unknown");
-		}
-		else
-		{
-			g_timer_elapsed(timer, &end_us);
-			time_us = (end_us - start_us);
-			setClock( CLOCK_REALTIME, timeSec, (time_us)*1000);
-		}
-		// Use for save dates in File DatosGps
-		archivo = fopen("DatosGps.txt","at");
-		if(archivo == NULL)
-		{
-			printf("Error al crear el archivo\n");
-		}
-		else
-		{	
-			fprintf(archivo, "Datos Gps\n");
-			fprintf(archivo, "Hora: %d:%d:%d\n", data.hour, data.minute, data.second);
-			fprintf(archivo, "Fecha: %d/%d/%d\n", data.month, data.day, data.year);
-			fprintf(archivo, "Latitud: %d%s%d%c%d%c %c\n", data.gradosLatitud, "°", data.minutosLatitud, 39,
-					data.segundosLatitud, 34, data.latitud);
-			fprintf(archivo, "Longitud: %d%s%d%c%d%c %c\n\n", data.gradosLongitud, "°", data.minutosLongitud, 39,
-					data.segundosLongitud, 34, data.longitud);
-			fclose(archivo);
-			bArchivo = 0;
-		}
+			// Set clock of raspberry Pi with data the of Gps
+			timeSet.tm_year = (2000 + data.year) - 1900;
+			timeSet.tm_mon =  data.month;
+			timeSet.tm_mday = data.day;
+			timeSet.tm_hour = data.hour;
+			timeSet.tm_min = data.minute;
+			timeSet.tm_sec = data.second;
+			timeSet.tm_isdst = 0;
+			timeSec = mktime(&timeSet);
+			if (timeSec == -1)
+			{
+				perror("unknown");
+			}
+			else
+			{
+				g_timer_elapsed(timer, &end_us);
+				time_us = (end_us - start_us);
+				setClock( CLOCK_REALTIME, timeSec, (time_us)*1000);
+			}
+			// Use for save dates in File DatosGps
+			archivo = fopen("DatosGps.txt","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo, "Datos Gps\n");
+				fprintf(archivo, "Hora: %d:%d:%d\n", data.hour, data.minute, data.second);
+				fprintf(archivo, "Fecha: %d/%d/%d\n", data.month, data.day, data.year);
+				fprintf(archivo, "Latitud: %d%s%d%c%d%c %c\n", data.gradosLatitud, "°", data.minutosLatitud, 39,
+				data.segundosLatitud, 34, data.latitud);
+				fprintf(archivo, "Longitud: %d%s%d%c%d%c %c\n\n", data.gradosLongitud, "°", data.minutosLongitud, 39,
+				data.segundosLongitud, 34, data.longitud);
+				fclose(archivo);
+				bArchivo = 0;
+			}
+		} // end check out if ther are data in Gps
+		
 	} //End save for first sometime in file.txt
 
 	// Blink Led
@@ -437,17 +433,21 @@ void setClock(clockid_t clock, time_t tSec, long tnSec)
 void getTimeClock(void)
 {
 	int in[2];
-	struct timeval tv = {0};
-	gettimeofday(&tv, NULL);
+	struct timespec ts;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) 
+	{
+		perror("clock_gettime");
+		exit(EXIT_FAILURE);
+	}
+    in[0] = (int) ts.tv_sec;
+    in[1] = (int) ts.tv_nsec;
 	// Get Seconds and convert to uint8_t
-	in[0] = (int) tv.tv_sec;
 	txEnv[0] = 0;
 	txEnv[1] = in[0];
 	txEnv[2] = (in[0] >> 8);
 	txEnv[3] = (in[0] >> 16);
 	txEnv[4] = (in[0] >> 24);
 	// Get microSeconds and convert to uint8_t
-	in[1] = (int) tv.tv_usec;
 	txEnv[5] = in[1];
 	txEnv[6] = (in[1] >> 8);
 	txEnv[7] = (in[1] >> 16);

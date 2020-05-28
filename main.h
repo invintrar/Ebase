@@ -20,7 +20,6 @@
 #include <pthread.h>
 #include <string.h>
 #include <sys/mman.h>
-#include <sys/time.h>
 #include "nrf24l01.h"
 #include "gps.h"
 
@@ -88,9 +87,6 @@ uint16_t time_us = 0;
 uint16_t time_usTR = 0;
 
 GdkRGBA color;
-
-// Flag Synchronization
-uint8_t fSyc;
 
 // Save value for record
 uint8_t horasSyc = 0;
