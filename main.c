@@ -119,6 +119,11 @@ void on_bSyncVideo_clicked()
 // Action when clicked button sycn Nodo1
 void on_bSyncN1_clicked()
 {
+	// Set Addres for Transmitir
+	setAddresNrf(1);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+	fSyc = 1;
 	static gboolean runN1 = FALSE;
 
 	if(!runN1)
@@ -221,7 +226,7 @@ void interrupcion()
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
-			// show data in text view
+			// show data in text viewpi
 			sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set in mode reception module NRF24L01+
@@ -255,12 +260,6 @@ void interrupcion()
 // Function show time each second
 gboolean showDataGps()
 {
-	g_timer_reset(timer);
-	g_timer_elapsed(timer,&start_us);
-	// Get data of module Gps
-	data = getDataGps();
-	g_timer_elapsed(timer, &end_us);
-	time_us = (end_us - start_us);
 	if(fSyc)
 	{
 		txEnv[0] = 1;
@@ -277,23 +276,46 @@ gboolean showDataGps()
 		g_timer_elapsed(timer1,&start_usTR);
 		RF24L01_sendData(txEnv,12);
 		// show data in text view
-		sprintf(tmp, "Hora Gps: %02d:%02d:%02d:%d\n", data.hour, data.minute, data.second, time_us);
+		sprintf(tmp, "Hora Gps: %02d:%02d:%02d:%02d\n", data.hour, data.minute, data.second, time_us);
 		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 		
 		fSyc = 0;
 	} // end if 
-	// Blink Led
-	blinkLed();
 	// Use for save date longitud y latitud when start aplication in file.txt
 	if(bArchivo == 1 && data.month != 0 && data.day != 0 && data.year != 0)
 	{
+		printf("here\n");
+		g_timer_reset(timer);
+		g_timer_elapsed(timer,&start_us);
+		// Get data of module Gps
+		data = getDataGps();
+		// Set clock of raspberry Pi with data the of Gps
+		timeSet.tm_year = (2000 + data.year) - 1900;
+		timeSet.tm_mon =  data.month;
+		timeSet.tm_mday = data.day;
+		timeSet.tm_hour = data.hour;
+		timeSet.tm_min = data.minute;
+		timeSet.tm_sec = data.second;
+		timeSet.tm_isdst = 0;
+		timeSec = mktime(&timeSet);
+		if (timeSec == -1)
+		{
+			perror("unknown");
+		}
+		else
+		{
+			g_timer_elapsed(timer, &end_us);
+			time_us = (end_us - start_us);
+			setClock( CLOCK_REALTIME, timeSec, (time_us)*1000);
+		}
+		// Use for save dates in File DatosGps
 		archivo = fopen("DatosGps.txt","at");
 		if(archivo == NULL)
 		{
 			printf("Error al crear el archivo\n");
 		}
 		else
-		{
+		{	
 			fprintf(archivo, "Datos Gps\n");
 			fprintf(archivo, "Hora: %d:%d:%d\n", data.hour, data.minute, data.second);
 			fprintf(archivo, "Fecha: %d/%d/%d\n", data.month, data.day, data.year);
@@ -305,8 +327,15 @@ gboolean showDataGps()
 			bArchivo = 0;
 		}
 	} //End save for first sometime in file.txt
+
+	// Blink Led
+	blinkLed();
+
+	timeGet = time(NULL);
+	pTimeGet = localtime(&timeGet);
+
 	//Show data in graphical user interface
-	sprintf( tmp, "%02d:%02d:%02d", data.hour, data.minute, data.second);
+	sprintf( tmp, "%02d:%02d:%02d", pTimeGet->tm_hour, pTimeGet->tm_min, pTimeGet->tm_sec);
 	gtk_label_set_text(GTK_LABEL(lbTime), tmp);
 	sprintf( tmp, "%02d/%02d/%02d", data.month, data.day, data.year);
 	gtk_label_set_text(GTK_LABEL(lbDate), tmp);
@@ -390,6 +419,46 @@ void myCSS(void)
     gtk_css_provider_load_from_file(provider, g_file_new_for_path(myCssFile), &error);
     g_object_unref (provider);
 } // end my CSS
+
+// Set clock of raspberry pi
+void setClock(clockid_t clock, time_t tSec, long tnSec)
+{
+    struct timespec tp = {tSec, tnSec};
+    if(clock_settime(clock, &tp) == -1 )
+    {
+        perror("clock_settime");
+        exit(EXIT_FAILURE);
+    }
+
+}// set clock of raspberry pi
+
+// get time of the raspberry opc:1 Seconds, microseconds
+// other case date
+void getTimeClock(void)
+{
+	int in[2];
+	struct timeval tv = {0};
+	gettimeofday(&tv, NULL);
+	// Get Seconds and convert to uint8_t
+	in[0] = (int) tv.tv_sec;
+	txEnv[0] = 0;
+	txEnv[1] = in[0];
+	txEnv[2] = (in[0] >> 8);
+	txEnv[3] = (in[0] >> 16);
+	txEnv[4] = (in[0] >> 24);
+	// Get microSeconds and convert to uint8_t
+	in[1] = (int) tv.tv_usec;
+	txEnv[5] = in[1];
+	txEnv[6] = (in[1] >> 8);
+	txEnv[7] = (in[1] >> 16);
+	txEnv[8] = (in[1] >> 24);
+	txEnv[9] = 0;
+	txEnv[10] = 0;
+	txEnv[11] = 0;
+	txEnv[12] = 0;
+	
+} // end getTime
+
 
 /**
  * Fin File

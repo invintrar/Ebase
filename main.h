@@ -9,7 +9,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <signal.h>
+#include <unistd.h>
 #include <time.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkx.h>
@@ -18,9 +20,12 @@
 #include <pthread.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/time.h>
 #include "nrf24l01.h"
 #include "gps.h"
 
+
+#define _XOPEN_SOURCE 700
 #define LED 		7
 
 #define Led_SetOutput()		pinMode(LED, OUTPUT)
@@ -52,11 +57,11 @@ uint32_t valueX = 0.0;
 uint32_t valueY = 0.0;
 uint32_t valueZ = 0.0;
 
-// 
+
+// Puerto serial of get data gps
 int serialPort = 0;
 //Variable store data Gps
 dataGps data;
-
 // Prompter for crear file.txt 
 FILE *archivo;
 
@@ -64,6 +69,11 @@ FILE *archivo;
 char tmp[1024];
 // Use for identificar socket
 unsigned int sockIdN1 = 0;
+// Work with time.h
+struct tm timeSet;
+time_t timeSec;
+time_t timeGet;
+struct tm *pTimeGet;
 
 //Mesure time
 GTimer *timer;
@@ -123,6 +133,8 @@ void setAddressTx(uint8_t value);
 void setAddressTx(uint8_t value);
 void setAddresNrf(uint8_t idNodo);
 void myCSS(void);
+void setClock(clockid_t clock, time_t tSec, long tnSec);
+void getTimeClock(void);
 
 #endif
 /**

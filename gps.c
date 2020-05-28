@@ -69,7 +69,7 @@ dataGps getDataGps(void)
 	gps.month = 0;
 	gps.year = 0;
 	intValue = 0;
-
+	// Init trama whit 0;
 	for(aux2 = 0 ; aux2<60; aux2++){
 		trama[aux2] = 0;
 	}
@@ -78,7 +78,8 @@ dataGps getDataGps(void)
 	readGps(trama);
 
 	serialFlush(serialPort);
-
+	
+	// Delte header of trama
 	for(i = 0 ; i<60; i++){
 		if(trama[i] == ',')
 		{
@@ -92,10 +93,10 @@ dataGps getDataGps(void)
 	}
 	
 
-	//Get Time
-	//Hora
+	// Get Time
+	// Hora
 	intValue =(trama[pos[0]+1]-'0')*10 + (trama[pos[0]+2]-'0');
-	//Paso a hora local
+	// Paso a hora local
 	if(intValue > 4)
 	{
 		intValue -= 5;
@@ -113,10 +114,9 @@ dataGps getDataGps(void)
 	intValue =(trama[pos[0]+3]-'0')*10 + (trama[pos[0]+4]-'0');
 	gps.minute = intValue;
 
-	//Segundos
+	//Seconds
 	intValue =(trama[pos[0]+5]-'0')*10 + (trama[pos[0]+6]-'0');
 	gps.second = intValue;
-
 
 	//Get Latitud
 	//Grados
