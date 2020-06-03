@@ -1,9 +1,21 @@
 /**
- * @author:DzhL
+ * @file gps.c
+ * @author DzhL (invintrar@gmail.com)
+ * @brief Use for get data of module Gps adfruit version 3
+ * @version 1.2
+ * @date 2020-06-02
+ * 
+ * 
  */
 
 #include "gps.h"
 
+
+/**
+ * @brief Init port serial of the raspberry pi 
+ * 
+ * @return uint8_t 
+ */
 uint8_t initSerial(void)
 {
 	if((serialPort = serialOpen("/dev/ttyS0", 9600)) < 0)
@@ -16,9 +28,14 @@ uint8_t initSerial(void)
 	{
 		return 0;
 	}
-}
+} // end initSerial
 
-//Función para adquirir los datos del Gps.
+
+/**
+ * @brief Function for read date Gps
+ * 
+ * @param trama 
+ */
 void readGps(uint8_t *trama){
 	uint8_t i, ch;
 
@@ -44,6 +61,11 @@ void readGps(uint8_t *trama){
 
 
 //Get Data Gps
+/**
+ * @brief Convert trama of GPS to value int of day mouth year an time
+ * 
+ * @return dataGps 
+ */
 dataGps getDataGps(void)
 {
 	uint8_t trama[60], i, j, pos[12],  intValue, aux2, flag;
@@ -170,7 +192,6 @@ dataGps getDataGps(void)
 	intValue = (trama[pos[8] +5]-'0')*10 + (trama[pos[8] + 6]-'0');
 	gps.year = intValue;
 
-
 	return gps;
 
-}
+} // readGps

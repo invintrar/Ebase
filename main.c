@@ -1,6 +1,13 @@
 /**
- * @author:DzhL
+ * @file main.c
+ * @author DzhL (invintrar@gmail.com)
+ * @brief Program for the station base use for init network wirless of Structural Health Monitoring(SHM).
+ * @version 1.2
+ * @date 2020-06-02
+ * 
+ * 
  */
+
 
 #include "main.h"
 
@@ -56,6 +63,7 @@ int main(int argc, char *argv[])
 	lbDate = GTK_WIDGET(gtk_builder_get_object(builder, "lbDate"));
 	lbLatitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLatitud"));
 	lbLongitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLongitud"));
+	lbNTM = GTK_WIDGET(gtk_builder_get_object(builder, "lbNTM"));
 	ScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder, "ScrollWindow"));
 	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
 	swN1 = GTK_WIDGET(gtk_builder_get_object(builder, "swN1"));
@@ -66,6 +74,7 @@ int main(int argc, char *argv[])
 	bSyncN1 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN1"));
     sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
     sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
+	sbSegundos = GTK_WIDGET(gtk_builder_get_object(builder, "sbSegundos"));
 
 
 
@@ -85,6 +94,8 @@ int main(int argc, char *argv[])
 
 	g_timeout_add_seconds(1,(GSourceFunc) showDataGps,NULL);
 
+	gtk_widget_show(fSinc);
+
     gtk_widget_show(window);                
 
     gtk_main();
@@ -93,7 +104,10 @@ int main(int argc, char *argv[])
 }//End main
 
 
-// Called when window is closed
+/**
+ * @brief Called when window is closed
+ * 
+ */
 void on_window_destroy()
 {
 	RF24L01_powerDown();
@@ -101,29 +115,39 @@ void on_window_destroy()
 	LedOff();
 }
 
-// Button for Init mesure of station video
+
+/**
+ * @brief Button for init mesure of station video
+ * 
+ */
 void on_bSyncVideo_clicked()
 {
 	// Set Addres for Transmitir
-	setAddresNrf(0);
+	//setAddresNrf(0);
 	//Settign address nrf and channel
-	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+	//RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
     sprintf(tmp,"Estableciendo conexion con el nodo\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 	//gtk_widget_show(fSinc);
 	// Send data for synchronization
-	g_timer_reset(timer1);
-	g_timer_elapsed(timer1,&start_usTR);
-	getTimeClock();
-	RF24L01_sendData(txEnv,12);
-	// show data in text view
-	sprintf(tmp, "Send Time\n");
-	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+	//g_timer_reset(timer1);
+	//g_timer_elapsed(timer1,&start_usTR);
+	// get time of clock real of the raspberry pi
+	//getTimeClock(timeClock);
+	// Option for synchronization 
+	//txEnv[0] = 1;
+	// Option identify time 1 of del master
+	//txEnv[10]= 1;
+	//RF24L01_send_data(txEnv);
+	sendData(txEnv);
 
 } // End on_bSyncVideo
 
 
-// Action when clicked button sycn Nodo1
+/**
+ * @brief Action when clicke button sycn nodo1
+ * 
+ */
 void on_bSyncN1_clicked()
 {
 	// Set Addres for Transmitir
@@ -170,33 +194,62 @@ void on_bSyncN1_clicked()
 } // End on_bSyncN1_clicked
 
 
-// Action when clicked button start measuring
+/**
+ * @brief Action when clicked button start measuring
+ * 
+ */
 void bipMuestreo_clicked()
 {
-	static gboolean running = FALSE;
+	static gboolean running = true;
 	
 	horasSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbHoras);
     minutosSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbMinutos);
+	segundosSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbSegundos);
 
-	sprintf(tmp, "Valor para sincronizar: %02d:%02d\n", horasSyc, minutosSyc);
-	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-
-	if(!running)
+	if(running)
 	{
-		gtk_widget_set_name(button, "myButton_red");
-		gtk_button_set_label((GtkButton *)button, "Parar   Muestreo");
+		if(minutosSyc > 0 || horasSyc > 0 || segundosSyc)
+		{
+			// Set Addres for Transmitir
+			setAddresNrf(0);
+			//Settign address nrf and channel
+			RF24L01_setup(tx_addr, rx_addr, CHANNEL);
+			// Opcion para Muestrear
+			txEnv[0] = 2;
+			txEnv[1] = horasSyc;
+			txEnv[2] = minutosSyc;
+			txEnv[3] = segundosSyc;
+			//RF24L01_send_data(txEnv);
+			sprintf(tmp, "Valor para muestreo: %02d:%02d:%02d\n",
+			horasSyc, minutosSyc, segundosSyc);
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+			gtk_widget_set_name(button, "myButton_red");
+			gtk_button_set_label((GtkButton *)button, "Parar   Muestreo");
+			running = !running;
+		}else
+		{
+			sprintf(tmp, "No ingreso valor para muestreo\n");
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+		}
 	}
 	else
 	{
+		txEnv[0] = 3;
+		//RF24L01_send_data(txEnv);
+		sprintf(tmp, "Se envio instruccion para detener muestreo\n");
+		gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+		// Use for show start measure
 		gtk_widget_set_name(button, "myButton_green");
 		gtk_button_set_label((GtkButton *)button, "Iniciar Muestreo");
+		running = !running;
 	}
-
-	running = !running;
 } // En bipMuestreo_clicked
 
 
-/* Function blink Led */
+/**
+ * @brief Function blink led
+ * 
+ */
 void blinkLed()
 {
 	if(bBlinkLed){
@@ -209,7 +262,12 @@ void blinkLed()
 } // end bllinkLed
 
 
-/* Function convert to value absolute */
+/**
+ * @brief Function convert to value absolute
+ * 
+ * @param a 
+ * @return float 
+ */
 float fnabs(float a)
 {
 	if(a<0)
@@ -218,12 +276,16 @@ float fnabs(float a)
 } // End fnabs
 
 
-/* Function Interrupcion for NRF24L01+ */
+/**
+ * @brief Function interrupt for NRF24L01+ when 
+ * send data or received data and maximum retransmition
+ * 
+ */
 void interrupcion()
 {
 	//Return 1:RX_DR , 2:Data send, 3:Max_RT
 	bNrf = RF24L01_status();
-
+	// switch
 	switch(bNrf)
 	{
 		case 1: // Data recive
@@ -232,11 +294,33 @@ void interrupcion()
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
+			if( rxRec[0] == 1)// send time 3
+			{
+				getTimeClock(timeClock);
+				rxRec[0] = 1;
+				rxRec[10] = 2 ;
+				bNrf = 0;
+				RF24L01_clear_interrupts();
+				//RF24L01_send_data(txEnv);
+				
+			}else if(rxRec[0] == 2)// sent time 1
+			{
+				getTimeClock(timeClock);
+				rxRec[0] = 1;
+				rxRec[10] = 1 ;
+				RF24L01_clear_interrupts();
+				bNrf = 0;
+				//RF24L01_send_data(txEnv);
+			}
+			else
+			{
+				sprintf(tmp, "Sincronizacion Completada\n");
+				gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			}
 			// show data in text viewpi
-			sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			//sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
+			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set in mode reception module NRF24L01+
-			RF24L01_set_mode_RX();
 			bNrf = 0;
 			break;
 		case 2: // Data send
@@ -248,9 +332,11 @@ void interrupcion()
 			sprintf(tmp, "Dato Enviado con un timpo: %d us\n", time_usTR);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set mode reception module NRF24L01+
+			RF24L01_clear_interrupts();
 			RF24L01_set_mode_RX();
 			gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
 			break;
+			bNrf = 0;
 		case 3:
 			sprintf(tmp, "Maximo numero de retransmisiones\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
@@ -261,6 +347,7 @@ void interrupcion()
 			//show data in text view
 			sprintf(tmp, "Max RT tiempo: %d us\n", time_usTR);
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			bNrf = 0;
 			break;
 		default:
 			break;
@@ -270,7 +357,12 @@ void interrupcion()
 } // End interrupcion
 
 
-// Function show time each second
+/**
+ * @brief Function show time each second and save date and time in file only first times and 
+ * matching clock only first time whit the time of the Gps 
+ * 
+ * @return gboolean 
+ */
 gboolean showDataGps()
 {
 	// Use for save date longitud y latitud when start aplication in file.txt and match clock
@@ -321,15 +413,12 @@ gboolean showDataGps()
 				bArchivo = 0;
 			}
 		} // end check out if ther are data in Gps
-		
 	} //End save for first sometime in file.txt
-
 	// Blink Led
 	blinkLed();
-
+	// get time 
 	timeGet = time(NULL);
 	pTimeGet = localtime(&timeGet);
-
 	//Show data in graphical user interface
 	sprintf( tmp, "%02d:%02d:%02d", pTimeGet->tm_hour, pTimeGet->tm_min, pTimeGet->tm_sec);
 	gtk_label_set_text(GTK_LABEL(lbTime), tmp);
@@ -345,7 +434,11 @@ gboolean showDataGps()
 } // End showDataGps
 
 
-// Set Address of module NRF for Transmition
+/**
+ * @brief Set the Address Tx object for transmition
+ * 
+ * @param value 
+ */
 void setAddressTx(uint8_t value)
 {
 	uint8_t i;
@@ -358,7 +451,11 @@ void setAddressTx(uint8_t value)
 } // End setAddressTx
 
 
-// Set Address of module NRF for Recive
+/**
+ * @brief Set the Address Rx object
+ * 
+ * @param value 
+ */
 void setAddressRx(uint8_t value)
 {
 	uint8_t i ;
@@ -371,7 +468,11 @@ void setAddressRx(uint8_t value)
 } // End setAddressRx
 
 
-// Use for select address of the stattion video or  node
+/**
+ * @brief Set the Addres Nrf object of the sattion video or nodeX
+ * 
+ * @param idNodo 
+ */
 void setAddresNrf(uint8_t idNodo)
 {
 	switch(idNodo)
@@ -397,7 +498,11 @@ void setAddresNrf(uint8_t idNodo)
 	} // End swintch
 } // End setAddresNrf
 
-// Use for color button
+
+/**
+ * @brief Use for color button
+ * 
+ */
 void myCSS(void)
 {
     GtkCssProvider *provider;
@@ -416,7 +521,14 @@ void myCSS(void)
     g_object_unref (provider);
 } // end my CSS
 
-// Set clock of raspberry pi
+
+/**
+ * @brief Set the Clock object fo raspberry pi
+ * 
+ * @param clock 
+ * @param tSec 
+ * @param tnSec 
+ */
 void setClock(clockid_t clock, time_t tSec, long tnSec)
 {
     struct timespec tp = {tSec, tnSec};
@@ -425,14 +537,17 @@ void setClock(clockid_t clock, time_t tSec, long tnSec)
         perror("clock_settime");
         exit(EXIT_FAILURE);
     }
-
 }// set clock of raspberry pi
 
-// get time of the raspberry opc:1 Seconds, microseconds
-// other case date
-void getTimeClock(void)
+
+/**
+ * @brief Get the Time Clock object, get time of the raspberry seconds,
+ * nanoseconds and set data in txEnv
+ * 
+ * @param in 
+ */
+void getTimeClock(int in[2])
 {
-	int in[2];
 	struct timespec ts;
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) 
 	{
@@ -455,8 +570,7 @@ void getTimeClock(void)
 	txEnv[9] = 0;
 	txEnv[10] = 0;
 	txEnv[11] = 0;
-	txEnv[12] = 0;
-	
+	txEnv[12] = 0;	
 } // end getTime
 
 

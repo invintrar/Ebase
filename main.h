@@ -1,8 +1,12 @@
-/*
-*
-* @author: DzhL
-*
-*/
+/**
+ * @file main.h
+ * @author DzhL (invintrar@gmail.com)
+ * @brief  Use for definition variables and function prototype
+ * @version 1.2
+ * @date 2020-06-02
+ * 
+ * 
+ */
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -23,14 +27,21 @@
 #include "nrf24l01.h"
 #include "gps.h"
 
-
-#define _XOPEN_SOURCE 700
-#define LED 		7
-
+/**
+ * @brief Define macros use en the program
+ * 
+ */
+#define _XOPEN_SOURCE       700
+#define LED 		        7
 #define Led_SetOutput()		pinMode(LED, OUTPUT)
 #define LedOn()        		digitalWrite(LED, HIGH)
 #define LedOff()		 	digitalWrite(LED, LOW)
 
+
+/**
+ * @brief Variable global use in the program
+ * 
+ */
 // Flag for control NRF24L01+
 uint8_t bNrf = 0;
 // Flag use for toogle Led
@@ -47,11 +58,11 @@ uint8_t tx_addr[5] = {0};
 // Addres Receive NRF24L01+
 uint8_t rx_addr[5] = {0};
 // Data sent 
-uint8_t txEnv[12] = {0};
+uint8_t txEnv[SIZEDATA] = {0};
 // Data receive 
-uint8_t rxRec[12] = {0};
+uint8_t rxRec[SIZEDATA] = {0};
 
-//Value of aceleromter
+//Value of aceleromterc
 uint32_t valueX = 0.0;
 uint32_t valueY = 0.0;
 uint32_t valueZ = 0.0;
@@ -73,6 +84,7 @@ struct tm timeSet;
 time_t timeSec;
 time_t timeGet;
 struct tm *pTimeGet;
+int timeClock[2] = {0};
 
 //Mesure time
 GTimer *timer;
@@ -91,12 +103,18 @@ GdkRGBA color;
 // Save value for record
 uint8_t horasSyc = 0;
 uint8_t minutosSyc = 0;
+uint8_t segundosSyc = 0;
 
-// Variable for GUI
+
+/**
+ * @brief Variable for GUI
+ * 
+ */
 GtkWidget 		*lbTime ;
 GtkWidget 		*lbDate ;
 GtkWidget 		*lbLatitud ;
 GtkWidget 		*lbLongitud ;
+GtkWidget 		*lbNTM;
 GtkWidget 		*TextView;
 GtkWidget 		*tvN1;
 GtkWidget 		*ScrollWindow;
@@ -112,10 +130,13 @@ GtkWidget		*button;
 GtkWidget		*bSyncN1;
 GtkWidget		*sbHoras;
 GtkWidget		*sbMinutos;
+GtkWidget		*sbSegundos;
 GtkWidget		*bxNodo1;
 
+
 /**
- * Fuction Prototype
+ * @brief Function Prototype
+ * 
  */
 void on_window_destroy();
 void on_bSyncVideo_clicked();
@@ -130,9 +151,10 @@ void setAddressTx(uint8_t value);
 void setAddresNrf(uint8_t idNodo);
 void myCSS(void);
 void setClock(clockid_t clock, time_t tSec, long tnSec);
-void getTimeClock(void);
+void getTimeClock(int in[2]);
 
 #endif
 /**
- * End File
- **/
+ * @brief End file main.h
+ * 
+ */

@@ -10,10 +10,11 @@ Licensed under GNU General Public License v2 or later.
 
 #define SECS_IN_DAY (24 * 60 * 60)
 
-static void displayClock(clockid_t clock, char *name, bool showRes)
-{
-    struct timespec ts;
+struct timespec ts;
 
+static void changeClock(clockid_t clock, char *name, bool showRes)
+{
+    
     if (clock_gettime(clock, &ts) == -1) 
     {
         perror("clock_gettime");
@@ -51,9 +52,9 @@ int main(int argc, char *argv[])
 {
     bool showRes = argc > 1;
 
-    //setClock(CLOCK_REALTIME);
-
     displayClock(CLOCK_REALTIME, "CLOCK_REALTIME", showRes);
+
+    //setClock(CLOCK_REALTIME);
 
     #ifdef CLOCK_TAI
         displayClock(CLOCK_TAI, "CLOCK_TAI", showRes);

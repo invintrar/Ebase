@@ -1,5 +1,16 @@
+/**
+ * @file gps.h
+ * @author DzhL (invintrar@gmail.com)
+ * @brief Use for define variables, macros and function prototype
+ * @version 1.2
+ * @date 2020-06-02
+ * 
+ * 
+ */
+
 #ifndef GPS_H
 #define GPS_H
+
 
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +20,11 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 #include <math.h>
+
+/**
+ * @brief Define new variables whit typedef and global variables
+ * 
+ */
 
 typedef struct{
 	uint8_t hour;
@@ -29,6 +45,11 @@ typedef struct{
 
 //Variables externas
 extern int serialPort;
+
+/**
+ * @brief Define function protypes
+ * 
+ */
 
 uint8_t initSerial(void);
 dataGps getDataGps(void);
