@@ -104,8 +104,8 @@ void RF24L01_setup(uint8_t *tx_addr, uint8_t *rx_addr, uint8_t channel)
 	// RX payload in data pipe0 (0x11) 
 	RF24L01_reg_RX_PW_P0_content RX_PW_P0;
 	*((uint8_t *)&RX_PW_P0) = 0;
-	// Number of bytes in RX payload in data Pipe0 (12 bytes).
-	RX_PW_P0.RX_PW_P0 = 0x0C;
+	// Number of bytes in RX payload in data Pipe0 (from 1 to 32 bytes).
+	RX_PW_P0.RX_PW_P0 = SIZEDATA;
 	RF24L01_write_register(RF24L01_reg_RX_PW_P0, ((uint8_t *)&RX_PW_P0), 1);
 
 	//Clear flag interrupt
@@ -250,7 +250,8 @@ void RF24L01_set_mode_TX(void)
  * 
  * @param data 
  */
-void sendData(uint8_t data[]){
+void sendData(uint8_t data[])
+{
 	//CE->Low
 	RF24L01_CE_setLow();
 	//CONFIG  TX Mode
