@@ -36,9 +36,9 @@ int main(int argc, char *argv[])
 
 	// Setting port CE and SPI
 	RF24L01_init();
-	//Seting Interrupt
-	wiringPiISR(RF_IRQ, INT_EDGE_FALLING, interrupcion);
-	// Initial serial for comunication with Gps
+	// Seting Interrupt module NRF24L01+
+	wiringPiISR(RF_IRQ, INT_EDGE_FALLING, interrupcionNRF);
+	// Initial port serial for comunication with Gps
 	if(initSerial())
 	{
 		printf("Error Setup Serial\n");
@@ -122,23 +122,22 @@ void on_window_destroy()
  */
 void on_bSyncVideo_clicked()
 {
-	// Set Addres for Transmitir
-	//setAddresNrf(0);
-	//Settign address nrf and channel
-	//RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-    sprintf(tmp,"Estableciendo conexion con el nodo\n");
+	sprintf(tmp,"Inicio de Sincronizacion\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+	// Set Addres for Transmitir
+	setAddresNrf(0);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
 	//gtk_widget_show(fSinc);
 	// Send data for synchronization
-	//g_timer_reset(timer1);
-	//g_timer_elapsed(timer1,&start_usTR);
+	g_timer_reset(timer1);
+	g_timer_elapsed(timer1,&start_usTR);
 	// get time of clock real of the raspberry pi
-	//getTimeClock(timeClock);
+	getTimeClock(timeClock);
 	// Option for synchronization 
-	//txEnv[0] = 1;
-	// Option identify time 1 of del master
-	//txEnv[10]= 1;
-	//RF24L01_send_data(txEnv);
+	txEnv[0] = 1;
+	// Option identify time 1 of del master that identify the slave
+	txEnv[10]= 1;
 	sendData(txEnv);
 
 } // End on_bSyncVideo
@@ -216,10 +215,10 @@ void bipMuestreo_clicked()
 			RF24L01_setup(tx_addr, rx_addr, CHANNEL);
 			// Opcion para Muestrear
 			txEnv[0] = 2;
-			txEnv[1] = horasSyc;
+			txEnv[1] = segundosSyc;
 			txEnv[2] = minutosSyc;
-			txEnv[3] = segundosSyc;
-			//RF24L01_send_data(txEnv);
+			txEnv[3] = horasSyc;
+			sendData(txEnv);
 			sprintf(tmp, "Valor para muestreo: %02d:%02d:%02d\n",
 			horasSyc, minutosSyc, segundosSyc);
 			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
@@ -234,9 +233,10 @@ void bipMuestreo_clicked()
 	}
 	else
 	{
-		txEnv[0] = 3;
-		//RF24L01_send_data(txEnv);
-		sprintf(tmp, "Se envio instruccion para detener muestreo\n");
+		RF24L01_powerDown();
+		//txEnv[0] = 3;
+		//sendData(txEnv);
+		sprintf(tmp, "Apagado modulo Nrf24L01+\n");
 		gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
 		// Use for show start measure
 		gtk_widget_set_name(button, "myButton_green");
@@ -281,7 +281,7 @@ float fnabs(float a)
  * send data or received data and maximum retransmition
  * 
  */
-void interrupcion()
+void interrupcionNRF()
 {
 	//Return 1:RX_DR , 2:Data send, 3:Max_RT
 	bNrf = RF24L01_status();
@@ -290,37 +290,16 @@ void interrupcion()
 	{
 		case 1: // Data recive
 			// show data received in text view
-			sprintf(tmp,"Data Rady from RX\n");
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			//sprintf(tmp,"Dato  recibido...\n");
+			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
-			if( rxRec[0] == 1)// send time 3
-			{
-				getTimeClock(timeClock);
-				rxRec[0] = 1;
-				rxRec[10] = 2 ;
-				bNrf = 0;
-				RF24L01_clear_interrupts();
-				//RF24L01_send_data(txEnv);
-				
-			}else if(rxRec[0] == 2)// sent time 1
-			{
-				getTimeClock(timeClock);
-				rxRec[0] = 1;
-				rxRec[10] = 1 ;
-				RF24L01_clear_interrupts();
-				bNrf = 0;
-				//RF24L01_send_data(txEnv);
-			}
-			else
-			{
-				sprintf(tmp, "Sincronizacion Completada\n");
-				gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			}
-			// show data in text viewpi
-			//sprintf(tmp, "Hora Estacion video:\n %d:%d:%d\n",rxRec[3],rxRec[2],rxRec[1]);
+			//sprintf(tmp,"Opcion received: %d\n",rxRec[0]);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			// Set in mode reception module NRF24L01+
+			//delay(3);
+			sendTimeSlave(rxRec[0]);
+			// Clear register for quit interrupt
+			RF24L01_clear_interrupts();
 			bNrf = 0;
 			break;
 		case 2: // Data send
@@ -329,32 +308,64 @@ void interrupcion()
 			// calcule diferencia de time
 			time_usTR = (end_usTR - start_usTR);
 			//show data in text view
-			sprintf(tmp, "Dato Enviado con un timpo: %d us\n", time_usTR);
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			//sprintf(tmp, "Dato Enviado con un timpo: %d us\n", time_usTR);
+			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Set mode reception module NRF24L01+
-			RF24L01_clear_interrupts();
 			RF24L01_set_mode_RX();
-			gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato..\n", -1);
-			break;
+			//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
+			// Clear register for quit interrupt
+			RF24L01_clear_interrupts();
 			bNrf = 0;
+			break;
 		case 3:
-			sprintf(tmp, "Maximo numero de retransmisiones\n");
+			sprintf(tmp, "Maximo numero de retransmisiones\nIntente nuevamente\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// stop timer
 			g_timer_elapsed(timer1, &end_usTR);
 			// calcule diferencia de time
 			time_usTR = (end_usTR - start_usTR);
 			//show data in text view
-			sprintf(tmp, "Max RT tiempo: %d us\n", time_usTR);
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			//sprintf(tmp, "Max RT tiempo: %d us\n", time_usTR);
+			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			// Set mode reception module NRF24L01+
+			RF24L01_set_mode_RX();
+			//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
+			// Clear register for quit interrupt
+			RF24L01_clear_interrupts();
 			bNrf = 0;
 			break;
 		default:
 			break;
 	} // end switch
-	// Clear register for quit interrupt
-	RF24L01_clear_interrupts();
 } // End interrupcion
+
+/**
+ * @brief Opction that send time 1 and time 4 for calculate delay and offset in slave
+ * 
+ * @param opt 
+ */
+void sendTimeSlave(uint8_t opt)
+{
+	if( opt == 1)// send time 1
+	{
+		getTimeClock(timeClock);
+		txEnv[0] = 1;
+		txEnv[10] = 1;
+		sendData(txEnv);
+	}
+	else if(opt == 2)// sent time 4
+	{
+		getTimeClock(timeClock);
+		txEnv[0] = 1;
+		txEnv[10] = 2;
+		sendData(txEnv);
+	}
+	else
+	{
+		sprintf(tmp, "Sincronizacion Completada\n");
+		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+	}
+}
 
 
 /**

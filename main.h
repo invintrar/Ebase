@@ -58,7 +58,7 @@ uint8_t tx_addr[5] = {0};
 // Addres Receive NRF24L01+
 uint8_t rx_addr[5] = {0};
 // Data sent 
-uint8_t txEnv[SIZEDATA] = {0};
+uint8_t txEnv[SIZEDATA];
 // Data receive 
 uint8_t rxRec[SIZEDATA] = {0};
 
@@ -144,7 +144,7 @@ void on_bSyncN1_clicked();
 void bipMuestreo_clicked();
 void blinkLed();
 float fnabs(float a);
-void interrupcion();
+void interrupcionNRF();
 gboolean showDataGps();
 void setAddressTx(uint8_t value);
 void setAddressTx(uint8_t value);
@@ -152,6 +152,7 @@ void setAddresNrf(uint8_t idNodo);
 void myCSS(void);
 void setClock(clockid_t clock, time_t tSec, long tnSec);
 void getTimeClock(int in[2]);
+void sendTimeSlave(uint8_t opt);
 
 #endif
 /**

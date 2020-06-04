@@ -325,8 +325,7 @@
                       <object class="GtkLabel" id="lbNTM">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="valign">center</property>
-                        <property name="justify">fill</property>
+                        <property name="justify">center</property>
                         <attributes>
                           <attribute name="font-desc" value="Century Schoolbook L Medium 12"/>
                           <attribute name="foreground" value="#adad7f7fa8a8"/>
@@ -399,7 +398,10 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <placeholder/>
+                          <object class="GtkTextView" id="TextView">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                          </object>
                         </child>
                       </object>
                     </child>
@@ -425,16 +427,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTextView" id="TextView">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                    <property name="width">3</property>
-                    <property name="height">7</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
