@@ -74,6 +74,7 @@ int serialPort = 0;
 dataGps data;
 // Prompter for crear file.txt 
 FILE *archivo;
+bool bndMuestreo = false;
 
 // Variable temporal
 char tmp[1024];

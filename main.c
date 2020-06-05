@@ -128,10 +128,12 @@ void on_bSyncVideo_clicked()
 	setAddresNrf(0);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+	//RF24L01_set_mode_RX();
+	//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
 	//gtk_widget_show(fSinc);
 	// Send data for synchronization
-	g_timer_reset(timer1);
-	g_timer_elapsed(timer1,&start_usTR);
+	//g_timer_reset(timer1);
+	//g_timer_elapsed(timer1,&start_usTR);
 	// get time of clock real of the raspberry pi
 	getTimeClock(timeClock);
 	// Option for synchronization 
@@ -209,6 +211,7 @@ void bipMuestreo_clicked()
 	{
 		if(minutosSyc > 0 || horasSyc > 0 || segundosSyc)
 		{
+			bndMuestreo = !bndMuestreo;
 			// Set Addres for Transmitir
 			setAddresNrf(0);
 			//Settign address nrf and channel
@@ -219,7 +222,7 @@ void bipMuestreo_clicked()
 			txEnv[2] = minutosSyc;
 			txEnv[3] = horasSyc;
 			sendData(txEnv);
-			sprintf(tmp, "Valor para muestreo: %02d:%02d:%02d\n",
+			sprintf(tmp, "Valor para muestreo: %02d:%02d:%02d",
 			horasSyc, minutosSyc, segundosSyc);
 			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
 			gtk_widget_set_name(button, "myButton_red");
@@ -227,7 +230,7 @@ void bipMuestreo_clicked()
 			running = !running;
 		}else
 		{
-			sprintf(tmp, "No ingreso valor para muestreo\n");
+			sprintf(tmp, "No ingreso valor para muestreo");
 			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
 		}
 	}
@@ -236,7 +239,7 @@ void bipMuestreo_clicked()
 		RF24L01_powerDown();
 		//txEnv[0] = 3;
 		//sendData(txEnv);
-		sprintf(tmp, "Apagado modulo Nrf24L01+\n");
+		sprintf(tmp, "Apagado modulo Nrf24L01+");
 		gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
 		// Use for show start measure
 		gtk_widget_set_name(button, "myButton_green");
@@ -289,6 +292,8 @@ void interrupcionNRF()
 	switch(bNrf)
 	{
 		case 1: // Data recive
+			//g_timer_reset(timer1);
+			//g_timer_elapsed(timer1,&start_usTR);
 			// show data received in text view
 			//sprintf(tmp,"Dato  recibido...\n");
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
@@ -296,34 +301,46 @@ void interrupcionNRF()
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
 			//sprintf(tmp,"Opcion received: %d\n",rxRec[0]);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			//delay(3);
+			delay(2);
 			sendTimeSlave(rxRec[0]);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
 			bNrf = 0;
 			break;
 		case 2: // Data send
-			// stop timer
-			g_timer_elapsed(timer1, &end_usTR);
-			// calcule diferencia de time
-			time_usTR = (end_usTR - start_usTR);
-			//show data in text view
-			//sprintf(tmp, "Dato Enviado con un timpo: %d us\n", time_usTR);
-			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			bNrf = 0;
 			// Set mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
+			if(bndMuestreo){
+				sprintf(tmp, "Inicio Muestreo Correctamente");
+				gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+				bndMuestreo = !bndMuestreo;
+			}
+			
 			//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
-			bNrf = 0;
+			// stop timer
+			//g_timer_elapsed(timer1, &end_usTR);
+			// calcule diferencia de time
+			//time_usTR = (end_usTR - start_usTR);
+			//show data in text view
+			//sprintf(tmp, "Tiempo transcurrido: %d us\n", time_usTR);
+			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		case 3:
-			sprintf(tmp, "Maximo numero de retransmisiones\nIntente nuevamente\n");
-			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			if(bndMuestreo){
+				sprintf(tmp, "No se envio el dato para iniciar muestreo");
+				gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+				bndMuestreo = !bndMuestreo;
+			}else{
+				sprintf(tmp, "Maximo numero de retransmisiones\nIntente nuevamente\n");
+				gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			}
 			// stop timer
-			g_timer_elapsed(timer1, &end_usTR);
+			//g_timer_elapsed(timer1, &end_usTR);
 			// calcule diferencia de time
-			time_usTR = (end_usTR - start_usTR);
+			//time_usTR = (end_usTR - start_usTR);
 			//show data in text view
 			//sprintf(tmp, "Max RT tiempo: %d us\n", time_usTR);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
@@ -364,6 +381,7 @@ void sendTimeSlave(uint8_t opt)
 	{
 		sprintf(tmp, "Sincronizacion Completada\n");
 		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+		RF24L01_powerDown();
 	}
 }
 
