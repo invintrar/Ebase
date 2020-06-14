@@ -122,6 +122,7 @@ void on_window_destroy()
  */
 void on_bSyncVideo_clicked()
 {
+	idMessage = 11;
 	sprintf(tmp,"Inicio de Sincronizacion\n");
 	gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 	// Set Addres for Transmitir
@@ -151,47 +152,46 @@ void on_bSyncVideo_clicked()
  */
 void on_bSyncN1_clicked()
 {
+	idMessage = 1;
 	// Set Addres for Transmitir
 	setAddresNrf(1);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-	static gboolean runN1 = FALSE;
+	
+	static uint8_t opcN1 = 1;
 
-	if(!runN1)
-	{
-		// Cuand pulso Sincronizar
-		gtk_widget_set_name(bSyncN1, "myButton_green");
-		gtk_button_set_label((GtkButton *)bSyncN1, "Prueba");
-		sprintf(tmp,"Pulsado Sincronizar\n");
-		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
+	switch(opcN1){
+		case 1:
+			// Cuand pulso Sincronizar
+			gtk_widget_set_name(bSyncN1, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN1, "Iniciar Prueba");
+			sprintf(tmp,"Sincronizacion Iniciada...\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			//getTimeClock(timeClock);
+			//txEnv[0] = 2;
+			//sendData(txEnv);
+			opcN1 = 2;
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN1, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN1, "Para Prueba");
+			sprintf(tmp,"Inicio de Prueba\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);
+			opcN1 = 3;
+			break;
+		default:
+			gtk_widget_set_name(bSyncN1, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN1, "Iniar Prueba");
+			sprintf(tmp,"Se detiene el muestreo.\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			txEnv[0] = 4;
+			sendData(txEnv);
+			opcN1 = 2;
+			break;
 	}
-	else
-	{
-		// Cuando pulso Prueba
-		gtk_widget_set_name(bSyncN1, "myButton_blue");
-		gtk_button_set_label((GtkButton *)bSyncN1, "Sincronizar");
-		sprintf(tmp,"Pulsado Prueba\n");
-		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
-		sockN1 = gtk_socket_new ();
-		gtk_widget_set_size_request(sockN1, 400, 400);
-		gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
-		sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
-
-		sprintf(tmp, "Socket created=%#x\n", sockIdN1);
-		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
-		gtk_widget_show_all(window);
-		
-		sprintf(tmp, "gnuplot -c animacion.gp \"%x\" &\n", sockIdN1);
-		gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
-		system(tmp);
-	}
-
-	runN1 = !runN1;
-
 } // End on_bSyncN1_clicked
 
 
@@ -202,6 +202,7 @@ void on_bSyncN1_clicked()
 void bipMuestreo_clicked()
 {
 	static gboolean running = true;
+	idMessage = 12;
 	
 	horasSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbHoras);
     minutosSyc = gtk_spin_button_get_value_as_int((GtkSpinButton *)sbMinutos);
@@ -211,7 +212,6 @@ void bipMuestreo_clicked()
 	{
 		if(minutosSyc > 0 || horasSyc > 0 || segundosSyc)
 		{
-			bndMuestreo = !bndMuestreo;
 			// Set Addres for Transmitir
 			setAddresNrf(0);
 			//Settign address nrf and channel
@@ -299,27 +299,24 @@ void interrupcionNRF()
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
+			//showMessageRcDt(idMessage);
+			
 			//sprintf(tmp,"Opcion received: %d\n",rxRec[0]);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			delay(2);
-			sendTimeSlave(rxRec[0]);
+			delay(3);
+			taskMaster(rxRec[0]);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
 			bNrf = 0;
 			break;
 		case 2: // Data send
 			bNrf = 0;
+			RF24L01_clear_interrupts();
 			// Set mode reception module NRF24L01+
 			RF24L01_set_mode_RX();
-			if(bndMuestreo){
-				sprintf(tmp, "Inicio Muestreo Correctamente");
-				gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
-				bndMuestreo = !bndMuestreo;
-			}
-			
 			//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
 			// Clear register for quit interrupt
-			RF24L01_clear_interrupts();
+			//showMessageSnDt(idMessage);
 			// stop timer
 			//g_timer_elapsed(timer1, &end_usTR);
 			// calcule diferencia de time
@@ -329,14 +326,6 @@ void interrupcionNRF()
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		case 3:
-			if(bndMuestreo){
-				sprintf(tmp, "No se envio el dato para iniciar muestreo");
-				gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
-				bndMuestreo = !bndMuestreo;
-			}else{
-				sprintf(tmp, "Maximo numero de retransmisiones\nIntente nuevamente\n");
-				gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			}
 			// stop timer
 			//g_timer_elapsed(timer1, &end_usTR);
 			// calcule diferencia de time
@@ -349,6 +338,7 @@ void interrupcionNRF()
 			//gtk_text_buffer_insert(TextBuffer, &iter, "Esperando Dato...\n", -1);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
+			showMessageMxRt(idMessage);
 			bNrf = 0;
 			break;
 		default:
@@ -361,27 +351,31 @@ void interrupcionNRF()
  * 
  * @param opt 
  */
-void sendTimeSlave(uint8_t opt)
+void taskMaster(uint8_t opt)
 {
-	if( opt == 1)// send time 1
-	{
-		getTimeClock(timeClock);
-		txEnv[0] = 1;
-		txEnv[10] = 1;
-		sendData(txEnv);
-	}
-	else if(opt == 2)// sent time 4
-	{
-		getTimeClock(timeClock);
-		txEnv[0] = 1;
-		txEnv[10] = 2;
-		sendData(txEnv);
-	}
-	else
-	{
-		sprintf(tmp, "Sincronizacion Completada\n");
-		gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-		RF24L01_powerDown();
+	switch(opt){
+		case 1:// send time 1
+			getTimeClock(timeClock);
+			txEnv[0] = 1;
+			txEnv[10] = 1;
+			sendData(txEnv);
+			break;
+		case 2:// sent time 4
+			getTimeClock(timeClock);
+			txEnv[0] = 1;
+			txEnv[10] = 2;
+			sendData(txEnv);
+			break;
+		case 3:// End Syncronization
+			showMessageSync(idMessage);
+			RF24L01_powerDown();
+			break;
+		case 4://
+			plotData(idMessage);
+			break;
+		default:// show message end syncronization
+			RF24L01_powerDown();
+			break;	
 	}
 }
 
@@ -516,7 +510,7 @@ void setAddresNrf(uint8_t idNodo)
 			//Addres Receive
 			setAddressRx(0xA1);
 		   	//Addres Transive
-			setAddressTx(0x78);
+			setAddressTx(0xA1);
 			break;
 		default:
 			//Addres Receive
@@ -602,6 +596,198 @@ void getTimeClock(int in[2])
 	txEnv[12] = 0;	
 } // end getTime
 
+void showMessageMxRt(uint8_t id){
+	switch(id){
+		case 1:// Message production for nodo 1
+			sprintf(tmp,"Dato no enviado intente nuevamente\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			idMessage = 0;
+			break;
+		case 2:
+			//show mesage of Nodo2
+			break;
+		case 3:
+			//show mesage of Nodo3
+			break;
+		case 11: // message production for estacion video
+			sprintf(tmp, "Maximo numero de retransmisiones\nIntente nuevamente\n");
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			idMessage = 0;
+			break;
+		case 12:// Mensage muestreo
+			sprintf(tmp, "No se envio el dato para iniciar muestreo");
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+			idMessage = 0;
+			break;
+		default:
+			break;
+		
+	}
+} // end showMessageMxRxt
+
+void showMessageSnDt(uint8_t id){
+	switch(id){
+		case 1:// Message production for nodo 1
+			sprintf(tmp,"Dato enviado correctamente\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			break;
+		case 2:
+			//show mesage of Nodo1
+			break;
+		case 3:
+			//show mesage of Nodo2
+			break;
+		case 11: // message production for estacion video
+			idMessage = 0;
+			break;
+		case 12:// Mensage muestreo
+			sprintf(tmp, "Inicio Muestreo Correctamente");
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+			idMessage = 0;
+			break;
+		default:
+			break;
+		
+	}
+	
+}
+
+void showMessageRcDt(uint8_t id){
+	switch(id){
+		case 1:// Message production for nodo 1
+			sprintf(tmp,"Dato recibido\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			break;
+		case 2:
+			//show mesage of Nodo1
+			break;
+		case 3:
+			//show mesage of Nodo2
+			break;
+		case 11: // message production for estacion video
+			
+			break;
+		case 12:// Mensage muestreo
+			sprintf(tmp, "Inicio Muestreo Correctamente");
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+			
+			break;
+		default:
+			break;
+		
+	}
+	
+}
+
+
+void showMessageSync(uint8_t id){
+	switch(id){
+		case 1:// Message production for nodo 1
+			sprintf(tmp,"Sincronizacion Completada Exitosamente\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			break;
+		case 2:
+			//show mesage of Nodo1
+			break;
+		case 3:
+			//show mesage of Nodo2
+			break;
+		case 11: // message production for estacion video
+			sprintf(tmp, "Sincronizacion Completada\n");
+			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
+			break;
+		case 12:// Mensage muestreo
+			sprintf(tmp, "Inicio Muestreo Correctamente");
+			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
+			
+			break;
+		default:
+			break;
+		
+	}
+	
+}
+
+void plotData(uint8_t id){
+	int aux;
+	float fX, fY, fZ;
+	switch(id){
+		case 1:
+			aux = (int)rxRec[1]<<12 | (int)rxRec[2] << 4 | (int)rxRec[3]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			fX = aux / 256000.00;
+
+			aux = (int)rxRec[4]<<12 | (int)rxRec[5] << 4 | (int)rxRec[6]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			fY = aux / 256000.00;
+
+			aux = (int)rxRec[7]<<12 | (int)rxRec[8] << 4 | (int)rxRec[9]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			fZ = aux / 256000.00;
+
+			aux = 0;
+			// Get mesure corrient
+			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
+			float voltage = (3.3/4095.0)*aux;
+			voltage = voltage - 0.33;
+			float current = voltage/0.132; // current in Ampere
+
+			// Use for save dates in File DatosGps
+			archivo = fopen("DataAdxl.txt","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo, "%f\t%f\t%f\t%f\n", fX, fY, fZ, current);
+				fclose(archivo);
+			}
+			//sockN1 = gtk_socket_new ();
+			//gtk_widget_set_size_request(sockN1, 400, 400);
+			//gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
+			//sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
+
+			//sprintf(tmp, "Socket created=%#x\n", sockIdN1);
+			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+
+			//gtk_widget_show_all(window);
+		
+			//sprintf(tmp, "gnuplot -c animacion.gp \"%x\" &\n", sockIdN1);
+			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+
+			//system(tmp);
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8:
+			break;
+		case 9:
+			break;
+		case 10:
+			break;
+		default:
+			break;
+	}
+
+}
 
 /**
  * Fin File

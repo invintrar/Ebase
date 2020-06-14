@@ -52,6 +52,8 @@ uint16_t sensor;
 uint8_t bArchivo = 1;
 // Use for new process
 uint8_t sockId = 0;
+// Use of show message
+uint8_t idMessage = 0;
 
 // Address transmitation NRF24L01+
 uint8_t tx_addr[5] = {0};
@@ -62,19 +64,12 @@ uint8_t txEnv[SIZEDATA];
 // Data receive 
 uint8_t rxRec[SIZEDATA] = {0};
 
-//Value of aceleromterc
-uint32_t valueX = 0.0;
-uint32_t valueY = 0.0;
-uint32_t valueZ = 0.0;
-
-
 // Puerto serial of get data gps
 int serialPort = 0;
 //Variable store data Gps
 dataGps data;
-// Prompter for crear file.txt 
+// Prompter for crear file.scv
 FILE *archivo;
-bool bndMuestreo = false;
 
 // Variable temporal
 char tmp[1024];
@@ -123,8 +118,8 @@ GtkWidget 		*swN1;
 GtkTextBuffer	*TextBuffer;
 GtkTextBuffer	*tbN1;
 GtkWidget	 	*fSinc;
-GtkTextIter  	iter;
-GtkTextIter  	iN1;
+GtkTextIter  	iter ;
+GtkTextIter  	iN1 ;
 GtkWidget	 	*sockN1;
 GtkWidget		*fNodo1;
 GtkWidget		*button;
@@ -153,7 +148,12 @@ void setAddresNrf(uint8_t idNodo);
 void myCSS(void);
 void setClock(clockid_t clock, time_t tSec, long tnSec);
 void getTimeClock(int in[2]);
-void sendTimeSlave(uint8_t opt);
+void taskMaster(uint8_t opt);
+void showMessageMxRt(uint8_t id);
+void showMessageSnDt(uint8_t id);
+void showMessageRcDt(uint8_t id);
+void showMessageSync(uint8_t id);
+void plotData(uint8_t id);
 
 #endif
 /**
