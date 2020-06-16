@@ -81,6 +81,7 @@ time_t timeSec;
 time_t timeGet;
 struct tm *pTimeGet;
 int timeClock[2] = {0};
+uint8_t showGrap = 0;
 
 //Mesure time
 GTimer *timer;

@@ -180,6 +180,14 @@ void on_bSyncN1_clicked()
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			txEnv[0] = 3;
 			sendData(txEnv);
+			//sockN1 = gtk_socket_new ();
+			//gtk_widget_set_size_request(sockN1, 400, 400);
+			//gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
+			//sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
+			//sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
+			//gtk_widget_show_all(window);
+			//system(tmp);
+			showGrap = 1;
 			opcN1 = 3;
 			break;
 		default:
@@ -189,6 +197,7 @@ void on_bSyncN1_clicked()
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			txEnv[0] = 4;
 			sendData(txEnv);
+			showGrap = 0;
 			opcN1 = 2;
 			break;
 	}
@@ -437,6 +446,15 @@ gboolean showDataGps()
 			}
 		} // end check out if ther are data in Gps
 	} //End save for first sometime in file.txt
+	if(showGrap){
+		sockN1 = gtk_socket_new ();
+		gtk_widget_set_size_request(sockN1, 400, 400);
+		gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
+		sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
+		sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
+		gtk_widget_show_all(window);
+		system(tmp);
+	}
 	// Blink Led
 	blinkLed();
 	// get time 
@@ -713,31 +731,37 @@ void showMessageSync(uint8_t id){
 }
 
 void plotData(uint8_t id){
-	int aux;
-	float fX, fY, fZ;
+	int aux, fX, fY, fZ;
 	switch(id){
 		case 1:
+			aux = 0;
 			aux = (int)rxRec[1]<<12 | (int)rxRec[2] << 4 | (int)rxRec[3]>> 4;
 			if ((aux & (1 << 19)) != 0)
 				aux = aux | ~((1 << 20) - 1);
-			fX = aux / 256000.00;
-
+			fX = aux;
+			//fX = aux / 256000.00;
+			aux = 0;
 			aux = (int)rxRec[4]<<12 | (int)rxRec[5] << 4 | (int)rxRec[6]>> 4;
 			if ((aux & (1 << 19)) != 0)
 				aux = aux | ~((1 << 20) - 1);
-			fY = aux / 256000.00;
+			fY = aux;
+			//fY = aux / 256000.00;
 
+			aux = 0;
 			aux = (int)rxRec[7]<<12 | (int)rxRec[8] << 4 | (int)rxRec[9]>> 4;
 			if ((aux & (1 << 19)) != 0)
 				aux = aux | ~((1 << 20) - 1);
-			fZ = aux / 256000.00;
+			//fZ = aux / 256000.00;
+			fZ = aux;
 
 			aux = 0;
 			// Get mesure corrient
 			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
 			float voltage = (3.3/4095.0)*aux;
 			voltage = voltage - 0.33;
-			float current = voltage/0.132; // current in Ampere
+			float current = (voltage/0.132)*1000; // current in Ampere
+			if(current <= 0)
+				current = 0;
 
 			// Use for save dates in File DatosGps
 			archivo = fopen("DataAdxl.txt","at");
@@ -747,9 +771,10 @@ void plotData(uint8_t id){
 			}
 			else
 			{	
-				fprintf(archivo, "%f\t%f\t%f\t%f\n", fX, fY, fZ, current);
+				fprintf(archivo, "%6d\t%6d\t%6d\t%03.3f\n", fX, fY, fZ, current);
 				fclose(archivo);
 			}
+
 			//sockN1 = gtk_socket_new ();
 			//gtk_widget_set_size_request(sockN1, 400, 400);
 			//gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
@@ -760,6 +785,7 @@ void plotData(uint8_t id){
 
 			//gtk_widget_show_all(window);
 		
+			//sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
 			//sprintf(tmp, "gnuplot -c animacion.gp \"%x\" &\n", sockIdN1);
 			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 
