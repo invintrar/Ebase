@@ -74,15 +74,15 @@ FILE *archivo;
 // Variable temporal
 char tmp[1024];
 // Use for identificar socket
-unsigned int sockIdN1 = 0;
+int sockIdN1 = 0;
 // Work with time.h
 struct tm timeSet;
 time_t timeSec;
 time_t timeGet;
 struct tm *pTimeGet;
 int timeClock[2] = {0};
-uint8_t showGrap = 0;
-
+int iteratorGraph = 0;
+int ret;
 //Mesure time
 GTimer *timer;
 GTimer *timer1;
@@ -94,6 +94,8 @@ gulong start_usTR = 0;
 gulong end_usTR = 0;
 uint16_t time_us = 0;
 uint16_t time_usTR = 0;
+uint8_t stopMesure = 0;
+uint8_t contInitGraph = 0;
 
 GdkRGBA color;
 
@@ -154,8 +156,9 @@ void showMessageMxRt(uint8_t id);
 void showMessageSnDt(uint8_t id);
 void showMessageRcDt(uint8_t id);
 void showMessageSync(uint8_t id);
+void showMessagePruebas(uint8_t op);
 void plotData(uint8_t id);
-
+void generarGraph(void);
 #endif
 /**
  * @brief End file main.h

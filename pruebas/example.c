@@ -4,7 +4,7 @@
  * @since: 2/14/2020
  */
 
-#include "main.h"
+"main.h"
 
 uint8_t run;
 /**
@@ -19,19 +19,20 @@ int main(int argc, char *argv[])
 	RF24L01_init();
 	// Setting address nrf and channel 
     for(i = 0; i<5;i++){
-        tx_addr[i]= 0x78;
-        rx_addr[i]= 0x78;
+        tx_addr[i]= 0xA1;
+        rx_addr[i]= 0xA1;
     }
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL);
     // Setting led output
 	Led_SetOutput();
 	// Setting Interrupt for NRF2L01+
-	wiringPiISR(RF_IRQ , INT_EDGE_FALLING, interrupcion);
+	wiringPiISR(RF_IRQ , INT_EDGE_FALLING,  interrupcionNRF);
 	// Interrupt when catch Ctrl-C
 	signal(SIGINT, intHandler);
 	//turn On led
 	LedOn();
-    //RF24L01_sendData(txEnv);
+	txEnv[0] = 3;
+    sendData(txEnv);
 	//delay(3); luego de enviar el dato no tenemos que hacer nada durante 3 ms o mas
 	// Bucle while
 	while(run)
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
  * or error in transmition.
  * 
  */
-void interrupcion(void)
+void  interrupcionNRF(void)
 {
 	// Return 1:RX_DR(Data Received), 2:Data Sent,
     // 3:MAX_RT(Maximun number retransmition in mode Transmisition

@@ -19,7 +19,7 @@
 void RF24L01_write_register(uint8_t register_addr, uint8_t *value, uint8_t length);
 uint8_t RF24L01_read_register(uint8_t register_addr);
 RF24L01_reg_STATUS_content RF24L01_get_status(void);
-void RF24L01_send_command(uint8_t command); 
+void RF24L01_send_command(uint8_t command);
 void RF24L01_set_mode_TX(void);
 
 

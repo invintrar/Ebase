@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
 /**
  * @brief Called when window is closed
  * 
+ * 
  */
 void on_window_destroy()
 {
@@ -180,24 +181,18 @@ void on_bSyncN1_clicked()
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			txEnv[0] = 3;
 			sendData(txEnv);
-			//sockN1 = gtk_socket_new ();
-			//gtk_widget_set_size_request(sockN1, 400, 400);
-			//gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
-			//sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
-			//sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
-			//gtk_widget_show_all(window);
-			//system(tmp);
-			showGrap = 1;
+			//RF24L01_set_mode_RX();
+			//stopMesure = 1;
+			//generarGraph();
 			opcN1 = 3;
 			break;
-		default:
+		default:// Cuando se preciosa parar prueba
 			gtk_widget_set_name(bSyncN1, "myButton_blue");
 			gtk_button_set_label((GtkButton *)bSyncN1, "Iniar Prueba");
-			sprintf(tmp,"Se detiene el muestreo.\n");
-			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-			txEnv[0] = 4;
+			stopMesure = 0;
+			iteratorGraph = 0;
+			txEnv[0] = 5;
 			sendData(txEnv);
-			showGrap = 0;
 			opcN1 = 2;
 			break;
 	}
@@ -309,10 +304,9 @@ void interrupcionNRF()
 			// Read data of the module
 			RF24L01_read_payload(rxRec, sizeof(rxRec));
 			//showMessageRcDt(idMessage);
-			
 			//sprintf(tmp,"Opcion received: %d\n",rxRec[0]);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			delay(3);
+			delay(2);
 			taskMaster(rxRec[0]);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
@@ -375,16 +369,95 @@ void taskMaster(uint8_t opt)
 			txEnv[10] = 2;
 			sendData(txEnv);
 			break;
-		case 3:// End Syncronization
+		case 3:// End 
 			showMessageSync(idMessage);
 			RF24L01_powerDown();
 			break;
 		case 4://
 			plotData(idMessage);
+			//txEnv[0] = 4;
+			//if(stopMesure)
+			//	txEnv[0] = 5;
+			//sendData(txEnv);
+			break;
+		case 5:
+			showMessagePruebas(idMessage);
+			RF24L01_powerDown();
 			break;
 		default:// show message end syncronization
 			RF24L01_powerDown();
 			break;	
+	}
+}
+
+void plotData(uint8_t id)
+{
+	int aux, fX, fY, fZ;
+	switch(id){
+		case 1:
+			aux = 0;
+			aux = (int)rxRec[1]<<12 | (int)rxRec[2] << 4 | (int)rxRec[3]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			fX = aux;
+			//fX = aux / 256000.00;
+			aux = 0;
+			aux = (int)rxRec[4]<<12 | (int)rxRec[5] << 4 | (int)rxRec[6]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			fY = aux;
+			//fY = aux / 256000.00;
+
+			aux = 0;
+			aux = (int)rxRec[7]<<12 | (int)rxRec[8] << 4 | (int)rxRec[9]>> 4;
+			if ((aux & (1 << 19)) != 0)
+				aux = aux | ~((1 << 20) - 1);
+			//fZ = aux / 256000.00;
+			fZ = aux;
+
+			aux = 0;
+			// Get mesure corrient
+			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
+			float voltage = (3.3/4095.0)*aux;
+			voltage = voltage - 0.33;
+			float current = (voltage/0.132)*1000; // current in Ampere
+			// Use for save dates in File DatosGps
+			FILE *p;
+			p = fopen("logfile","at");
+			if(p == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(p,"%10d\t%10d\t%10d\t%10d\t%03.3f\n",iteratorGraph, fX, fY, fZ, current);
+				iteratorGraph++;
+				fclose(p);
+			}
+			if(iteratorGraph == 50){
+				generarGraph();
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8:
+			break;
+		case 9:
+			break;
+		case 10:
+			break;
+		default:
+			break;
 	}
 }
 
@@ -446,15 +519,6 @@ gboolean showDataGps()
 			}
 		} // end check out if ther are data in Gps
 	} //End save for first sometime in file.txt
-	if(showGrap){
-		sockN1 = gtk_socket_new ();
-		gtk_widget_set_size_request(sockN1, 400, 400);
-		gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
-		sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
-		sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
-		gtk_widget_show_all(window);
-		system(tmp);
-	}
 	// Blink Led
 	blinkLed();
 	// get time 
@@ -580,7 +644,6 @@ void setClock(clockid_t clock, time_t tSec, long tnSec)
     }
 }// set clock of raspberry pi
 
-
 /**
  * @brief Get the Time Clock object, get time of the raspberry seconds,
  * nanoseconds and set data in txEnv
@@ -614,7 +677,8 @@ void getTimeClock(int in[2])
 	txEnv[12] = 0;	
 } // end getTime
 
-void showMessageMxRt(uint8_t id){
+void showMessageMxRt(uint8_t id)
+{
 	switch(id){
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Dato no enviado intente nuevamente\n");
@@ -643,7 +707,8 @@ void showMessageMxRt(uint8_t id){
 	}
 } // end showMessageMxRxt
 
-void showMessageSnDt(uint8_t id){
+void showMessageSnDt(uint8_t id)
+{
 	switch(id){
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Dato enviado correctamente\n");
@@ -670,7 +735,8 @@ void showMessageSnDt(uint8_t id){
 	
 }
 
-void showMessageRcDt(uint8_t id){
+void showMessageRcDt(uint8_t id)
+{
 	switch(id){
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Dato recibido\n");
@@ -700,13 +766,14 @@ void showMessageRcDt(uint8_t id){
 }
 
 
-void showMessageSync(uint8_t id){
+void showMessageSync(uint8_t id)
+{
 	switch(id){
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Sincronizacion Completada Exitosamente\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
-			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			//sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
 		case 2:
 			//show mesage of Nodo1
@@ -730,90 +797,30 @@ void showMessageSync(uint8_t id){
 	
 }
 
-void plotData(uint8_t id){
-	int aux, fX, fY, fZ;
-	switch(id){
+void showMessagePruebas(uint8_t op){
+	switch(op){
 		case 1:
-			aux = 0;
-			aux = (int)rxRec[1]<<12 | (int)rxRec[2] << 4 | (int)rxRec[3]>> 4;
-			if ((aux & (1 << 19)) != 0)
-				aux = aux | ~((1 << 20) - 1);
-			fX = aux;
-			//fX = aux / 256000.00;
-			aux = 0;
-			aux = (int)rxRec[4]<<12 | (int)rxRec[5] << 4 | (int)rxRec[6]>> 4;
-			if ((aux & (1 << 19)) != 0)
-				aux = aux | ~((1 << 20) - 1);
-			fY = aux;
-			//fY = aux / 256000.00;
-
-			aux = 0;
-			aux = (int)rxRec[7]<<12 | (int)rxRec[8] << 4 | (int)rxRec[9]>> 4;
-			if ((aux & (1 << 19)) != 0)
-				aux = aux | ~((1 << 20) - 1);
-			//fZ = aux / 256000.00;
-			fZ = aux;
-
-			aux = 0;
-			// Get mesure corrient
-			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
-			float voltage = (3.3/4095.0)*aux;
-			voltage = voltage - 0.33;
-			float current = (voltage/0.132)*1000; // current in Ampere
-			if(current <= 0)
-				current = 0;
-
-			// Use for save dates in File DatosGps
-			archivo = fopen("DataAdxl.txt","at");
-			if(archivo == NULL)
-			{
-				printf("Error al crear el archivo\n");
-			}
-			else
-			{	
-				fprintf(archivo, "%6d\t%6d\t%6d\t%03.3f\n", fX, fY, fZ, current);
-				fclose(archivo);
-			}
-
-			//sockN1 = gtk_socket_new ();
-			//gtk_widget_set_size_request(sockN1, 400, 400);
-			//gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
-			//sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
-
-			//sprintf(tmp, "Socket created=%#x\n", sockIdN1);
-			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
-			//gtk_widget_show_all(window);
-		
-			//sprintf(tmp, "gnuplot -c grafica.gp \"%x\" &\n",sockIdN1);
-			//sprintf(tmp, "gnuplot -c animacion.gp \"%x\" &\n", sockIdN1);
-			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-
-			//system(tmp);
-			break;
-		case 2:
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		case 5:
-			break;
-		case 6:
-			break;
-		case 7:
-			break;
-		case 8:
-			break;
-		case 9:
-			break;
-		case 10:
+			sprintf(tmp,"Prueba realizada con exito\n");
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
 		default:
+			printf("Error\n");
 			break;
 	}
-
 }
+
+void generarGraph(void)
+{				
+	sockN1 = gtk_socket_new ();
+	gtk_widget_set_size_request(sockN1, 400, 400);
+	gtk_container_add (GTK_CONTAINER (bxNodo1), sockN1);
+	sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
+	sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockIdN1);
+	gtk_widget_show_all(window);
+	system(tmp);
+}
+
+
 
 /**
  * Fin File
