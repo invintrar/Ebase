@@ -114,6 +114,12 @@ void on_window_destroy()
 	RF24L01_powerDown();
     gtk_main_quit();
 	LedOff();
+	// delete record video if exist 
+	if(existFile())
+    {
+        sprintf(tmp, "rm logfile");
+        system(tmp);
+    }
 }
 
 
@@ -158,20 +164,17 @@ void on_bSyncN1_clicked()
 	setAddresNrf(1);
 	//Settign address nrf and channel
 	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
-	
-	static uint8_t opcN1 = 1;
 
-	switch(opcN1){
+	switch(opcbNodos){
 		case 1:
 			// Cuand pulso Sincronizar
-			gtk_widget_set_name(bSyncN1, "myButton_green");
-			gtk_button_set_label((GtkButton *)bSyncN1, "Iniciar Prueba");
+			//gtk_widget_set_name(bSyncN1, "myButton_green");
+			//gtk_button_set_label((GtkButton *)bSyncN1, "Iniciar Prueba");
 			sprintf(tmp,"Sincronizacion Iniciada...\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-			//getTimeClock(timeClock);
-			//txEnv[0] = 2;
-			//sendData(txEnv);
-			opcN1 = 2;
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
 			break;
 		case 2:
 			// Cuando pulso Iniciar prueba
@@ -180,11 +183,8 @@ void on_bSyncN1_clicked()
 			sprintf(tmp,"Inicio de Prueba\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			txEnv[0] = 3;
-			sendData(txEnv);
-			//RF24L01_set_mode_RX();
-			//stopMesure = 1;
-			//generarGraph();
-			opcN1 = 3;
+			sendData(txEnv);		
+			opcbNodos = 3;
 			break;
 		default:// Cuando se preciosa parar prueba
 			gtk_widget_set_name(bSyncN1, "myButton_blue");
@@ -193,7 +193,17 @@ void on_bSyncN1_clicked()
 			iteratorGraph = 0;
 			txEnv[0] = 5;
 			sendData(txEnv);
-			opcN1 = 2;
+			opcbNodos = 2;
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%03.3f\t%10d\n",0, 0, 0, 0, 0.0, 1);
+				fclose(archivo);
+			}
 			break;
 	}
 } // End on_bSyncN1_clicked
@@ -430,7 +440,7 @@ void plotData(uint8_t id)
 			}
 			else
 			{	
-				fprintf(p,"%10d\t%10d\t%10d\t%10d\t%03.3f\n",iteratorGraph, fX, fY, fZ, current);
+				fprintf(p,"%10d\t%10d\t%10d\t%10d\t%03.3f\t%10d\n",iteratorGraph, fX, fY, fZ, current, 0);
 				iteratorGraph++;
 				fclose(p);
 			}
@@ -772,6 +782,9 @@ void showMessageSync(uint8_t id)
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Sincronizacion Completada Exitosamente\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			gtk_widget_set_name(bSyncN1, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN1, "Iniciar Prueba");
+			opcbNodos = 2;
 			//sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
 			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
@@ -819,6 +832,21 @@ void generarGraph(void)
 	gtk_widget_show_all(window);
 	system(tmp);
 }
+
+uint8_t existFile(void)
+{
+    FILE *arch;
+    arch = fopen("logfile","r");
+    if (arch == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        fclose(arch);
+        return 1;  
+    }
+} // en exist
 
 
 

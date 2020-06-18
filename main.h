@@ -96,6 +96,7 @@ uint16_t time_us = 0;
 uint16_t time_usTR = 0;
 uint8_t stopMesure = 0;
 uint8_t contInitGraph = 0;
+uint8_t opcbNodos = 1;
 
 GdkRGBA color;
 
@@ -159,6 +160,7 @@ void showMessageSync(uint8_t id);
 void showMessagePruebas(uint8_t op);
 void plotData(uint8_t id);
 void generarGraph(void);
+uint8_t existFile(void);
 #endif
 /**
  * @brief End file main.h
