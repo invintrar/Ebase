@@ -104,6 +104,9 @@ GdkRGBA color;
 uint8_t horasSyc = 0;
 uint8_t minutosSyc = 0;
 uint8_t segundosSyc = 0;
+int sumCurrent = 0;
+uint8_t countCurrent = 0;
+int timeInitMesue[2] = {0};
 
 
 /**

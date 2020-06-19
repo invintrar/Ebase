@@ -75,7 +75,8 @@ int main(int argc, char *argv[])
     sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
     sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
 	sbSegundos = GTK_WIDGET(gtk_builder_get_object(builder, "sbSegundos"));
-
+	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (TextView));
+	tbN1 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN1));
 
 
 	gtk_widget_set_name(button, "myButton_green");
@@ -201,7 +202,7 @@ void on_bSyncN1_clicked()
 			}
 			else
 			{	
-				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%03.3f\t%10d\n",0, 0, 0, 0, 0.0, 1);
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
 				fclose(archivo);
 			}
 			break;
@@ -316,7 +317,7 @@ void interrupcionNRF()
 			//showMessageRcDt(idMessage);
 			//sprintf(tmp,"Opcion received: %d\n",rxRec[0]);
 			//gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
-			delay(2);
+			delay(3); // Cuidado con este tiempo es el ideal para la sincronizacion 3ms
 			taskMaster(rxRec[0]);
 			// Clear register for quit interrupt
 			RF24L01_clear_interrupts();
@@ -383,12 +384,8 @@ void taskMaster(uint8_t opt)
 			showMessageSync(idMessage);
 			RF24L01_powerDown();
 			break;
-		case 4://
+		case 4://Recive datos del nodo
 			plotData(idMessage);
-			//txEnv[0] = 4;
-			//if(stopMesure)
-			//	txEnv[0] = 5;
-			//sendData(txEnv);
 			break;
 		case 5:
 			showMessagePruebas(idMessage);
@@ -428,9 +425,17 @@ void plotData(uint8_t id)
 			aux = 0;
 			// Get mesure corrient
 			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
-			float voltage = (3.3/4095.0)*aux;
-			voltage = voltage - 0.33;
-			float current = (voltage/0.132)*1000; // current in Ampere
+			sumCurrent += aux;
+			countCurrent++;
+			if(countCurrent > 10){
+				float average = (float) sumCurrent / 100.0;
+				float voltage = (3.3/4095.0) * average;
+				voltage = voltage - 0.33;
+				//float current = (voltage/0.132)*1000; // current in Ampere
+				// Here show in textView
+				countCurrent = 0;
+				sumCurrent = 0;
+			}
 			// Use for save dates in File DatosGps
 			FILE *p;
 			p = fopen("logfile","at");
@@ -440,7 +445,7 @@ void plotData(uint8_t id)
 			}
 			else
 			{	
-				fprintf(p,"%10d\t%10d\t%10d\t%10d\t%03.3f\t%10d\n",iteratorGraph, fX, fY, fZ, current, 0);
+				fprintf(p,"%10d\t%10d\t%10d\t%10d\t%10d\n",iteratorGraph, fX, fY, fZ, 0);
 				iteratorGraph++;
 				fclose(p);
 			}
@@ -785,8 +790,8 @@ void showMessageSync(uint8_t id)
 			gtk_widget_set_name(bSyncN1, "myButton_green");
 			gtk_button_set_label((GtkButton *)bSyncN1, "Iniciar Prueba");
 			opcbNodos = 2;
-			//sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
-			//gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
 		case 2:
 			//show mesage of Nodo1
