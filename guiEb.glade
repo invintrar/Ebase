@@ -391,19 +391,6 @@
                 <property name="row_homogeneous">True</property>
                 <property name="column_homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="bSyncVideo">
-                    <property name="label" translatable="yes">Sincronizar</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_bSyncVideo_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -421,6 +408,32 @@
                         </child>
                       </object>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                    <property name="width">3</property>
+                    <property name="height">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="bSyncVideo">
+                    <property name="label" translatable="yes">Sincronizar</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_bSyncVideo_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">11</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="pixbuf">webC.png</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -461,6 +474,23 @@
                 <property name="row_homogeneous">True</property>
                 <property name="column_homogeneous">True</property>
                 <child>
+                  <object class="GtkBox" id="bxNodo1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">3</property>
+                    <property name="height">8</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="bSyncN1">
                     <property name="label" translatable="yes">Sincronizar</property>
                     <property name="visible">True</property>
@@ -470,7 +500,23 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="top_attach">7</property>
+                    <property name="top_attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbCurrentN1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Corriente Nodo1</property>
+                    <attributes>
+                      <attribute name="font-desc" value="Century Schoolbook L Italic 14"/>
+                      <attribute name="foreground" value="#f5f579790000"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">11</property>
+                    <property name="width">3</property>
                   </packing>
                 </child>
                 <child>
@@ -486,6 +532,8 @@
                           <object class="GtkTextView" id="tvN1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="wrap_mode">word</property>
+                            <property name="justification">center</property>
                             <property name="buffer">tbN1</property>
                           </object>
                         </child>
@@ -494,26 +542,9 @@
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
-                    <property name="top_attach">6</property>
+                    <property name="top_attach">8</property>
                     <property name="width">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="bxNodo1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="valign">baseline</property>
-                    <property name="orientation">vertical</property>
-                    <property name="homogeneous">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                    <property name="width">3</property>
-                    <property name="height">6</property>
+                    <property name="height">2</property>
                   </packing>
                 </child>
                 <child>

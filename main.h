@@ -114,6 +114,7 @@ int timeInitMesue[2] = {0};
  * 
  */
 GtkWidget 		*lbTime ;
+GtkWidget 		*lbCurrentN1;
 GtkWidget 		*lbDate ;
 GtkWidget 		*lbLatitud ;
 GtkWidget 		*lbLongitud ;
@@ -131,6 +132,7 @@ GtkWidget	 	*sockN1;
 GtkWidget		*fNodo1;
 GtkWidget		*button;
 GtkWidget		*bSyncN1;
+GtkWidget		*bSyncVideo;
 GtkWidget		*sbHoras;
 GtkWidget		*sbMinutos;
 GtkWidget		*sbSegundos;
@@ -164,6 +166,7 @@ void showMessagePruebas(uint8_t op);
 void plotData(uint8_t id);
 void generarGraph(void);
 uint8_t existFile(void);
+void showCurrent(uint8_t op, float intencidad);
 #endif
 /**
  * @brief End file main.h

@@ -29,7 +29,7 @@ GtkButton {
 
 #myButton_yellow{
     background-color: yellow;
-    color: white;
+    color: black;
     font-family: DejaVu Sans;
     font-style: normal;
     font-weight: bold;

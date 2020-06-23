@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 	lbLatitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLatitud"));
 	lbLongitud = GTK_WIDGET(gtk_builder_get_object(builder, "lbLongitud"));
 	lbNTM = GTK_WIDGET(gtk_builder_get_object(builder, "lbNTM"));
+	lbCurrentN1 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN1"));
 	ScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder, "ScrollWindow"));
 	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
 	swN1 = GTK_WIDGET(gtk_builder_get_object(builder, "swN1"));
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
 	fSinc = GTK_WIDGET(gtk_builder_get_object(builder, "fSinc"));
     bxNodo1 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo1"));
     button = GTK_WIDGET(gtk_builder_get_object(builder, "bipMuestreo"));
+	bSyncVideo = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncVideo"));
 	bSyncN1 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN1"));
     sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
     sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
@@ -79,8 +81,10 @@ int main(int argc, char *argv[])
 	tbN1 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN1));
 
 
-	gtk_widget_set_name(button, "myButton_green");
+	gtk_widget_set_name(button, "myButton_yellow");
 	gtk_widget_set_name(bSyncN1, "myButton_blue");
+	gtk_widget_set_name(bSyncVideo, "myButton_green");
+	
 	
 
 	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(TextView));
@@ -158,7 +162,7 @@ void on_bSyncVideo_clicked()
  * @brief Action when clicke button sycn nodo1
  * 
  */
-void on_bSyncN1_clicked()
+void on_bSyncN1_clicked() 
 {
 	idMessage = 1;
 	// Set Addres for Transmitir
@@ -426,16 +430,16 @@ void plotData(uint8_t id)
 			// Get mesure corrient
 			aux = (int)rxRec[11]<< 8 | rxRec[10] ;
 			sumCurrent += aux;
-			countCurrent++;
 			if(countCurrent > 10){
-				float average = (float) sumCurrent / 100.0;
+				float average = (float) sumCurrent / 10.0;
 				float voltage = (3.3/4095.0) * average;
 				voltage = voltage - 0.33;
-				//float current = (voltage/0.132)*1000; // current in Ampere
-				// Here show in textView
+				float current = (voltage/0.132) * 1000.0; // current in mA
+				showCurrent(idMessage,current);
 				countCurrent = 0;
 				sumCurrent = 0;
 			}
+			countCurrent++;
 			// Use for save dates in File DatosGps
 			FILE *p;
 			p = fopen("logfile","at");
@@ -449,7 +453,7 @@ void plotData(uint8_t id)
 				iteratorGraph++;
 				fclose(p);
 			}
-			if(iteratorGraph == 50){
+			if(iteratorGraph == 10){
 				generarGraph();
 			}
 			break;
@@ -825,6 +829,18 @@ void showMessagePruebas(uint8_t op){
 			printf("Error\n");
 			break;
 	}
+}
+
+void showCurrent(uint8_t op, float intensidad){
+	switch(op){
+		case 1:
+			sprintf( tmp, "Corriente: %.3f mA", intensidad);
+			gtk_label_set_text(GTK_LABEL(lbCurrentN1), tmp);
+			break;
+		default:
+			break;
+	}
+	
 }
 
 void generarGraph(void)

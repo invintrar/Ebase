@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <limits.h>
 #include <float.h>
 
@@ -42,6 +43,16 @@ int main(int argc, char *argv[]){
 
     if((tx[3] & 3)!= 0)
         printf("Es x\n");
+    uint8_t counter = 0;
+    uint8_t sum = 0;
+    uint8_t value = 2;
+    for(int i= 0;i< 5;i++){
+        sum += value;
+        if(counter > 3)
+            printf("Here %d\n",counter);
+        printf("sum %d\n",sum);
+        counter++;
+    }
 
     x = (int)tx[1]<<12 | (int)tx[2] << 4 | (int)tx[3]>> 4;
 
