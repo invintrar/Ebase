@@ -403,6 +403,7 @@
                           <object class="GtkTextView" id="TextView">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="justification">center</property>
                             <property name="buffer">TextBuffer</property>
                           </object>
                         </child>

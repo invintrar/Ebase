@@ -46,14 +46,14 @@
 uint8_t bNrf = 0;
 // Flag use for toogle Led
 uint8_t bBlinkLed;
-// Use for save data sensor
-uint16_t sensor;
 // Use for save only one time
 uint8_t bArchivo = 1;
 // Use for new process
 uint8_t sockId = 0;
-// Use of show message
-uint8_t idMessage = 0;
+// Usado para identificar el dispositivo
+uint8_t idDispositivo = 0;
+// Usado para mostrar el mesaje cuando  se envia el pulso de inicio de medicion
+uint8_t idMesure = 0;
 
 // Address transmitation NRF24L01+
 uint8_t tx_addr[5] = {0};
@@ -63,14 +63,12 @@ uint8_t rx_addr[5] = {0};
 uint8_t txEnv[SIZEDATA];
 // Data receive 
 uint8_t rxRec[SIZEDATA] = {0};
-
 // Puerto serial of get data gps
 int serialPort = 0;
 //Variable store data Gps
 dataGps data;
 // Prompter for crear file.scv
 FILE *archivo;
-
 // Variable temporal
 char tmp[1024];
 // Use for identificar socket
@@ -81,9 +79,9 @@ time_t timeSec;
 time_t timeGet;
 struct tm *pTimeGet;
 int timeClock[2] = {0};
+// Usado para graficar los datos obtenidos del acelerometro
 int iteratorGraph = 0;
-int ret;
-//Mesure time
+// Mesure time
 GTimer *timer;
 GTimer *timer1;
 double start_time;
@@ -94,19 +92,21 @@ gulong start_usTR = 0;
 gulong end_usTR = 0;
 uint16_t time_us = 0;
 uint16_t time_usTR = 0;
-uint8_t stopMesure = 0;
-uint8_t contInitGraph = 0;
+// Usado para el boton multiestado 1: Sincronizar 2: Iniciar Prueba otro caso para muestra
 uint8_t opcbNodos = 1;
 
 GdkRGBA color;
 
 // Save value for record
-uint8_t horasSyc = 0;
-uint8_t minutosSyc = 0;
-uint8_t segundosSyc = 0;
+uint8_t timerHoras = 0;
+uint8_t timerMinutos = 0;
+uint8_t timerSegundos = 0;
 int sumCurrent = 0;
 uint8_t countCurrent = 0;
-int timeInitMesue[2] = {0};
+uint8_t verificaSync = 0;
+// Usado para verificar que todo los nodos inicien la medicion
+uint8_t verificaInicioCorrecto = 0;
+
 
 
 /**
@@ -148,7 +148,6 @@ void on_bSyncVideo_clicked();
 void on_bSyncN1_clicked();
 void bipMuestreo_clicked();
 void blinkLed();
-float fnabs(float a);
 void interrupcionNRF();
 gboolean showDataGps();
 void setAddressTx(uint8_t value);
@@ -164,9 +163,10 @@ void showMessageRcDt(uint8_t id);
 void showMessageSync(uint8_t id);
 void showMessagePruebas(uint8_t op);
 void plotData(uint8_t id);
-void generarGraph(void);
+//void generarGraph(void);
 uint8_t existFile(void);
 void showCurrent(uint8_t op, float intencidad);
+void generarGrafica(uint8_t idDptv);
 #endif
 /**
  * @brief End file main.h
