@@ -118,6 +118,7 @@ dataGps getDataGps(void)
 	// Get Time
 	// Hora
 	intValue =(trama[pos[0]+1]-'0')*10 + (trama[pos[0]+2]-'0');
+	gps.hour0 = intValue;
 	// Paso a hora local
 	if(intValue > 4)
 	{
@@ -177,6 +178,7 @@ dataGps getDataGps(void)
 	//Day
 	intValue = 0;
 	intValue = (trama[pos[8] +1]-'0')*10 + (trama[pos[8] + 2]-'0');
+	gps.day0 = intValue;
 	if(flag){
 		intValue--;
 	}

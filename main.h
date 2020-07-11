@@ -26,7 +26,7 @@
 #include <sys/mman.h>
 #include "nrf24l01.h"
 #include "gps.h"
-
+#include <X11/Xlib.h>
 /**
  * @brief Define macros use en the program
  * 
@@ -44,6 +44,14 @@
  */
 // Flag for control NRF24L01+
 uint8_t bNrf = 0;
+/* 
+*  Usado para el boton multiestado 
+*  1: Sincronizar
+*  2: Iniciar Prueba 
+*  3: Apagar modulo NRF
+*/
+uint8_t opcBn1 = 1;
+uint8_t opcBn2 = 1;
 // Flag use for toogle Led
 uint8_t bBlinkLed;
 // Use for save only one time
@@ -54,7 +62,6 @@ uint8_t sockId = 0;
 uint8_t idDispositivo = 0;
 // Usado para mostrar el mesaje cuando  se envia el pulso de inicio de medicion
 uint8_t idMesure = 0;
-
 // Address transmitation NRF24L01+
 uint8_t tx_addr[5] = {0};
 // Addres Receive NRF24L01+
@@ -92,8 +99,6 @@ gulong start_usTR = 0;
 gulong end_usTR = 0;
 uint16_t time_us = 0;
 uint16_t time_usTR = 0;
-// Usado para el boton multiestado 1: Sincronizar 2: Iniciar Prueba otro caso para muestra
-uint8_t opcbNodos = 1;
 
 GdkRGBA color;
 
@@ -108,36 +113,73 @@ uint8_t verificaSync = 0;
 uint8_t verificaInicioCorrecto = 0;
 
 
-
 /**
  * @brief Variable for GUI
  * 
  */
 GtkWidget 		*lbTime ;
 GtkWidget 		*lbCurrentN1;
+GtkWidget 		*lbCurrentN2;
 GtkWidget 		*lbDate ;
 GtkWidget 		*lbLatitud ;
 GtkWidget 		*lbLongitud ;
 GtkWidget 		*lbNTM;
 GtkWidget 		*TextView;
 GtkWidget 		*tvN1;
+GtkWidget 		*tvN2;
+GtkWidget 		*tvN3;
+GtkWidget 		*tvN4;
+GtkWidget 		*tvN5;
+GtkWidget 		*tvN6;
+GtkWidget 		*tvN7;
+GtkWidget 		*tvN8;
+GtkWidget 		*tvN9;
+GtkWidget 		*tvN10;
 GtkWidget 		*ScrollWindow;
 GtkWidget 		*swN1;
+GtkWidget 		*swN2;
 GtkTextBuffer	*TextBuffer;
 GtkTextBuffer	*tbN1;
+GtkTextBuffer	*tbN2;
+GtkTextBuffer	*tbN3;
+GtkTextBuffer	*tbN4;
+GtkTextBuffer	*tbN5;
+GtkTextBuffer	*tbN6;
+GtkTextBuffer	*tbN7;
+GtkTextBuffer	*tbN8;
+GtkTextBuffer	*tbN9;
+GtkTextBuffer	*tbN10;
 GtkWidget	 	*fSinc;
 GtkTextIter  	iter ;
 GtkTextIter  	iN1 ;
-GtkWidget	 	*sockN1;
+GtkTextIter  	iN2 ;
+GtkTextIter  	iN3 ;
+GtkTextIter  	iN4 ;
+GtkTextIter  	iN5 ;
+GtkTextIter  	iN6 ;
+GtkTextIter  	iN7 ;
+GtkTextIter  	iN8 ;
+GtkTextIter  	iN9 ;
+GtkTextIter  	iN10 ;
+GtkWidget	 	*sock;
 GtkWidget		*fNodo1;
 GtkWidget		*button;
 GtkWidget		*bSyncN1;
+GtkWidget		*bSyncN2;
 GtkWidget		*bSyncVideo;
 GtkWidget		*sbHoras;
 GtkWidget		*sbMinutos;
 GtkWidget		*sbSegundos;
 GtkWidget		*bxNodo1;
-
+GtkWidget		*bxNodo2;
+GtkWidget		*bxNodo3;
+GtkWidget		*bxNodo4;
+GtkWidget		*bxNodo5;
+GtkWidget		*bxNodo6;
+GtkWidget		*bxNodo7;
+GtkWidget		*bxNodo8;
+GtkWidget		*bxNodo9;
+GtkWidget		*bxNodo10;
 
 /**
  * @brief Function Prototype
@@ -146,6 +188,15 @@ GtkWidget		*bxNodo1;
 void on_window_destroy();
 void on_bSyncVideo_clicked();
 void on_bSyncN1_clicked();
+void on_bSyncN2_clicked();
+void on_bSyncN3_clicked();
+void on_bSyncN4_clicked();
+void on_bSyncN5_clicked();
+void on_bSyncN6_clicked();
+void on_bSyncN7_clicked();
+void on_bSyncN8_clicked();
+void on_bSyncN9_clicked();
+void on_bSyncN10_clicked();
 void bipMuestreo_clicked();
 void blinkLed();
 void interrupcionNRF();
@@ -162,11 +213,11 @@ void showMessageSnDt(uint8_t id);
 void showMessageRcDt(uint8_t id);
 void showMessageSync(uint8_t id);
 void showMessagePruebas(uint8_t op);
-void plotData(uint8_t id);
-//void generarGraph(void);
 uint8_t existFile(void);
 void showCurrent(uint8_t op, float intencidad);
-void generarGrafica(uint8_t idDptv);
+void generarGrafica(uint8_t idN);
+void plotData(uint8_t id);
+void sendPulseMesure(uint8_t device);
 #endif
 /**
  * @brief End file main.h

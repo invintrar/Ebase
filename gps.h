@@ -28,6 +28,7 @@
 
 typedef struct{
 	uint8_t hour;
+	uint8_t hour0;
 	uint8_t minute;
 	uint8_t second;
 	uint8_t gradosLatitud;
@@ -39,6 +40,7 @@ typedef struct{
 	uint8_t segundosLongitud;
 	uint8_t longitud;
 	uint8_t day;
+	uint8_t day0;
 	uint8_t month;
 	uint8_t year;
 }dataGps;

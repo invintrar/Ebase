@@ -37,6 +37,15 @@ GtkButton {
     border-radius: 15px;
 }
 
+#myButton_black{
+    background-color:white;
+    color: black;
+    font-family: normal;
+    font-weight: bold;
+    font-size: 20px;
+    border-radius: 15px;
+}
+
 #myButton_green{
     background-color: green;
     color: white;
@@ -56,6 +65,7 @@ GtkButton {
     font-size: 20px;
     border-radius: 15px;
 }
+
 
 #myButton_red:hover,
 #myButton_yellow:hover,
