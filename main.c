@@ -11,26 +11,15 @@
 
 #include "main.h"
 
-GtkBuilder      *builder; 
-GtkWidget       *window;
-
 
 /**
  * Function Main
  */
 int main(int argc, char *argv[])
 {
-	start_time = 0.0;
-	end_time = 0.0;
-	start_us = 0;
-	end_us = 0;
-	fSinc = 0;
-	bNrf = 0;
-	bBlinkLed = 1;
-
 	XInitThreads();
-
 	gtk_init(&argc, &argv);
+
 	// My styles for button
 	myCSS();
 
@@ -47,18 +36,17 @@ int main(int argc, char *argv[])
 	}
 	// Initialize the timer
 	timer = g_timer_new();
-	timer1 = g_timer_new();
+	//timer1 = g_timer_new();
 	
 	//Set port of the lmaed how output
     pinMode(LED,OUTPUT);
 
-    //gtk_init(&argc, &argv);
-
     builder = gtk_builder_new();
 
-    gtk_builder_add_from_file (builder, "guiEb.glade", NULL);
+    gtk_builder_add_from_file (builder, "interfazG.glade", NULL);
 
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+
     gtk_builder_connect_signals(builder, NULL);
 
 	lbTime = GTK_WIDGET(gtk_builder_get_object(builder, "lbTime"));
@@ -68,41 +56,93 @@ int main(int argc, char *argv[])
 	lbNTM = GTK_WIDGET(gtk_builder_get_object(builder, "lbNTM"));
 	lbCurrentN1 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN1"));
 	lbCurrentN2 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN2"));
+	lbCurrentN3 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN3"));
+	lbCurrentN4 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN4"));
+	lbCurrentN5 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN5"));
+	lbCurrentN6 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN6"));
+	lbCurrentN7 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN7"));
+	lbCurrentN8 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN8"));
+	lbCurrentN90 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN90"));
+	lbCurrentN10 = GTK_WIDGET(gtk_builder_get_object(builder, "lbCurrentN10"));
 	ScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder, "ScrollWindow"));
 	TextView = GTK_WIDGET(gtk_builder_get_object(builder, "TextView"));
 	swN1 = GTK_WIDGET(gtk_builder_get_object(builder, "swN1"));
 	swN2 = GTK_WIDGET(gtk_builder_get_object(builder, "swN2"));
 	tvN1 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN1"));
 	tvN2 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN2"));
+	tvN3 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN3"));
+	tvN4 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN4"));
+	tvN5 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN5"));
+	tvN6 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN6"));
+	tvN7 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN7"));
+	tvN8 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN8"));
+	tvN9 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN9"));
+	tvN10 = GTK_WIDGET(gtk_builder_get_object(builder, "tvN10"));
 	fSinc = GTK_WIDGET(gtk_builder_get_object(builder, "fSinc"));
     bxNodo1 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo1"));
 	bxNodo2 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo2"));
+	bxNodo3 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo3"));
+	bxNodo4 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo4"));
+	bxNodo5 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo5"));
+	bxNodo60 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo60"));
+	bxNodo7 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo7"));
+	bxNodo8 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo8"));
+	bxNodo6 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo6"));
+	bxNodo10 = GTK_WIDGET(gtk_builder_get_object(builder, "bxNodo10"));
     button = GTK_WIDGET(gtk_builder_get_object(builder, "bipMuestreo"));
 	bSyncVideo = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncVideo"));
 	bSyncN1 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN1"));
 	bSyncN2 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN2"));
+	bSyncN3 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN3"));
+	bSyncN4 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN4"));
+	bSyncN5 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN5"));
+	bSyncN6 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN6"));
+	bSyncN7 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN7"));
+	bSyncN8 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN8"));
+	bSyncN9 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN9"));
+	bSyncN10 = GTK_WIDGET(gtk_builder_get_object(builder, "bSyncN10"));
     sbHoras = GTK_WIDGET(gtk_builder_get_object(builder, "sbHoras"));
     sbMinutos = GTK_WIDGET(gtk_builder_get_object(builder, "sbMinutos"));
 	sbSegundos = GTK_WIDGET(gtk_builder_get_object(builder, "sbSegundos"));
 	TextBuffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (TextView));
 	tbN1 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN1));
 	tbN2 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN2));
-
+	tbN3 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN3));
+	tbN4 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN4));
+	tbN5 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN5));
+	tbN6 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN6));
+	tbN7 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN7));
+	tbN8 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN8));
+	tbN9 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN9));
+	tbN10 = gtk_text_view_get_buffer (GTK_TEXT_VIEW (tvN10));
 
 	gtk_widget_set_name(button, "myButton_yellow");
 	gtk_widget_set_name(bSyncVideo, "myButton_green");
 	gtk_widget_set_name(bSyncN1, "myButton_blue");
 	gtk_widget_set_name(bSyncN2, "myButton_black");
+	gtk_widget_set_name(bSyncN3, "myButton_blue");
+	gtk_widget_set_name(bSyncN4, "myButton_black");
+	gtk_widget_set_name(bSyncN5, "myButton_blue");
+	gtk_widget_set_name(bSyncN6, "myButton_black");
+	gtk_widget_set_name(bSyncN7, "myButton_blue");
+	gtk_widget_set_name(bSyncN8, "myButton_black");
+	gtk_widget_set_name(bSyncN9, "myButton_blue");
+	gtk_widget_set_name(bSyncN10, "myButton_black");
 	
-
-
     g_object_unref(builder);
-
 	//gtk_widget_hide(fSinc);
 	
 	gtk_text_buffer_get_iter_at_offset(TextBuffer, &iter, 0);
 	gtk_text_buffer_get_iter_at_offset(tbN1, &iN1, 0);
 	gtk_text_buffer_get_iter_at_offset(tbN2, &iN2, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN3, &iN3, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN4, &iN4, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN5, &iN5, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN6, &iN6, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN7, &iN7, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN8, &iN8, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN9, &iN9, 0);
+	gtk_text_buffer_get_iter_at_offset(tbN10, &iN10, 0);
 
 	g_timeout_add_seconds(1,(GSourceFunc) showDataGps,NULL);
 
@@ -242,7 +282,7 @@ void on_bSyncN2_clicked()
 			break;
 		case 2:
 			// Cuando pulso Iniciar prueba
-			gtk_widget_set_name(bSyncN1, "myButton_blue");
+			gtk_widget_set_name(bSyncN2, "myButton_blue");
 			gtk_button_set_label((GtkButton *)bSyncN2, "Stop test"); // Parar prueba
 			sprintf(tmp,"Start test\n");
 			gtk_text_buffer_insert(tbN2, &iN2, tmp, -1);
@@ -251,7 +291,7 @@ void on_bSyncN2_clicked()
 			opcBn2 = 3;
 			break;
 		default:// Cuando se preciona parar prueba
-			gtk_widget_set_name(bSyncN1, "myButton_blue");
+			gtk_widget_set_name(bSyncN2, "myButton_blue");
 			gtk_button_set_label((GtkButton *)bSyncN2, "Satart test");
 			archivo = fopen("logfile","at");
 			if(archivo == NULL)
@@ -271,27 +311,401 @@ void on_bSyncN2_clicked()
 	}
 } // End on_bSyncN2_clicked
 
-void on_bSyncN3_clicked(){}
+
+void on_bSyncN3_clicked() 
+{
+	idDispositivo = 3;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	switch(opcBn3){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN3, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN3, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn3 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN3, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN3, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn3 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN3_clicked
 
 
-void on_bSyncN4_clicked() {}
+void on_bSyncN4_clicked() 
+{
+	idDispositivo = 4;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
 
-void on_bSyncN5_clicked() {}
+	switch(opcBn4){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN4, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN4, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn4 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN4, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN4, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn4 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN4_clicked
 
-void on_bSyncN6_clicked(){}
 
-void on_bSyncN7_clicked(){}
+void on_bSyncN5_clicked() 
+{
+	idDispositivo = 5;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
 
-void on_bSyncN8_clicked(){
+	switch(opcBn5){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN5, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN5, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn5 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN5, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN5, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn5 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN5_clicked
 
-} // end on_bSyncN8_clicked
+
+void on_bSyncN6_clicked() 
+{
+	idDispositivo = 6;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	switch(opcBn6){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN6, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN6, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn6 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN6, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN6, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn6 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN5_clicked
+
+void on_bSyncN7_clicked() 
+{
+	idDispositivo = 7;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	switch(opcBn7){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN7, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN7, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn7 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN7, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN7, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn7 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN7_clicked
 
 
-void on_bSyncN9_clicked(){
-} // end on_bSyncN9_clicked
+void on_bSyncN8_clicked() 
+{
+	idDispositivo = 8;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
 
+	switch(opcBn8){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN8, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN8, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn8 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN8, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN8, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn8 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN8_clicked
 
-void on_bSyncN10_clicked(){
+void on_bSyncN9_clicked() 
+{
+	idDispositivo = 9;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	switch(opcBn9){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN9, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN9, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn9 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN9, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN9, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn9 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
+} // End on_bSyncN9_clicked
+
+void on_bSyncN10_clicked() 
+{
+	idDispositivo = 10;
+	// Set Addres for Transmitir
+	setAddresNrf(idDispositivo);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL); 
+
+	switch(opcBn10){
+		case 1:
+			// Cuand pulso Sincronizar
+			sprintf(tmp,"Synchronization started...\n");
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
+			getTimeClock(timeClock);
+			txEnv[0] = 2;
+			sendData(txEnv);
+			break;
+		case 2:
+			// Cuando pulso Iniciar prueba
+			gtk_widget_set_name(bSyncN10, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN10, "Stop test"); // Parar prueba
+			sprintf(tmp,"Start test\n");
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
+			txEnv[0] = 3;
+			sendData(txEnv);		
+			opcBn10 = 0;
+			break;
+		default:
+			// Cuando se preciona parar prueba
+			gtk_widget_set_name(bSyncN10, "myButton_blue");
+			gtk_button_set_label((GtkButton *)bSyncN10, "Satart test");
+			archivo = fopen("logfile","at");
+			if(archivo == NULL)
+			{
+				printf("Error al crear el archivo\n");
+			}
+			else
+			{	
+				fprintf(archivo,"%10d\t%10d\t%10d\t%10d\t%10d\n",0, 0, 0, 0, 1);
+				fclose(archivo);
+			}
+			iteratorGraph = 0;
+			opcBn10 = 2;
+			txEnv[0] = 5;
+			sendData(txEnv);
+			break;
+	}
 } // End on_bSyncN10_clicked
 
 
@@ -311,7 +725,7 @@ void bipMuestreo_clicked()
 	{
 		if(timerMinutos > 0 || timerHoras > 0 || timerSegundos)
 		{
-			if(verificaSync == 14){// utilizado para verificar que se sincronize el nodo
+			if(verificaSync == 66){// utilizado para verificar que se sincronize el nodo
 				// identificador de dispositivo
 				idDispositivo = 1;
 				// Set Addres for Transmitir
@@ -321,7 +735,6 @@ void bipMuestreo_clicked()
 				// Obtenemos el tiempo que se enviara para inicio de muestreo
 				getTimeClock(timeClock);
 				// Opcion para Muestrear y el tiempo de muestreo
-				//txEnv[0] = 2; // instruccion para la estacion video
 				txEnv[0] = 4; // instruccion para los nodos
 				txEnv[9] = timerSegundos;
 				txEnv[10] = timerMinutos;
@@ -485,7 +898,7 @@ void taskMaster(uint8_t opt)
 			if(rxRec[1] == idDispositivo)
 			{
 				verificaInicioCorrecto += idDispositivo;
-				if(verificaInicioCorrecto == 14)
+				if(verificaInicioCorrecto == 66)
 				{
 					sprintf(tmp, "Correct Start of Start Pulse.");
 					gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
@@ -493,13 +906,7 @@ void taskMaster(uint8_t opt)
 				}else
 				{
 					idDispositivo +=  1;
-					if (idDispositivo >= 3)
-					{
-						idDispositivo += 8;
-						sendPulseMesure(idDispositivo); 
-					}else{
-						sendPulseMesure(idDispositivo);
-					}
+					sendPulseMesure(idDispositivo); 
 				}
 			}else{
 				sendPulseMesure(idDispositivo);
@@ -512,28 +919,14 @@ void taskMaster(uint8_t opt)
 } // end taskMaster
 
 
-void sendPulseMesure(uint8_t device){
-	switch(device){
-		case 2:
-			// Set Addres for Transmitir
-			setAddresNrf(device);
-			//Settign address nrf and channel
-			RF24L01_setup(tx_addr, rx_addr, CHANNEL);
-			idMesure = 1;
-			sendData(txEnv);
-			break;
-		case 11:
-			// Set Addres for Transmitir
-			setAddresNrf(device);
-			//Settign address nrf and channel
-			RF24L01_setup(tx_addr, rx_addr, CHANNEL);
-			idMesure = 1;
-			sendData(txEnv);
-			break;
-		default:
-			break;
-	} // end switch
-
+void sendPulseMesure(uint8_t device)
+{
+	// Set Addres for Transmitir
+	setAddresNrf(device);
+	//Settign address nrf and channel
+	RF24L01_setup(tx_addr, rx_addr, CHANNEL);
+	idMesure = 1;
+	sendData(txEnv);
 } // end sendPulseMesure
 
 
@@ -569,7 +962,7 @@ void generarGrafica(uint8_t idN)
 		float average = (float) sumCurrent / 10.0;
 		float voltage = (3.3/4095.0) * average;
 		voltage = voltage - 0.33;
-		float current = (voltage/0.132) * 1000.0; // current in mA
+		current = (voltage/0.132) * 1000.0; // current in mA
 		showCurrent(idDispositivo,current);
 		countCurrent = 0;
 		sumCurrent = 0;
@@ -596,30 +989,67 @@ void generarGrafica(uint8_t idN)
 
 void plotData(uint8_t id)
 {
+	//GThread *hilo9;
 	int sockId = 0;
+	sock = gtk_socket_new ();
+	gtk_widget_set_size_request(sock, 400, 400);
 	switch(id){
 		case 1:
-			sock = gtk_socket_new ();
-			gtk_widget_set_size_request(sock, 400, 400);
 			gtk_container_add (GTK_CONTAINER (bxNodo1), sock);
-			sockId = gtk_socket_get_id(GTK_SOCKET(sock));
-			sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockId);
-			gtk_widget_show_all(window);
-			system(tmp);
 			break;
 		case 2:
-			sock = gtk_socket_new ();
-			gtk_widget_set_size_request(sock, 400, 400);
 			gtk_container_add (GTK_CONTAINER (bxNodo2), sock);
-			sockId = gtk_socket_get_id(GTK_SOCKET(sock));
-			sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockId);
-			gtk_widget_show_all(window);
-			system(tmp);
+			break;
+		case 3:
+			gtk_container_add (GTK_CONTAINER (bxNodo3), sock);
+			break;
+		case 4:
+			gtk_container_add (GTK_CONTAINER (bxNodo4), sock);
+			break;
+		case 5:
+			gtk_container_add (GTK_CONTAINER (bxNodo5), sock);
+			break;
+		case 6:
+			gtk_container_add (GTK_CONTAINER (bxNodo60), sock);
+			break;
+		case 7:
+			gtk_container_add (GTK_CONTAINER (bxNodo7), sock);
+			break;
+		case 8:
+			gtk_container_add (GTK_CONTAINER (bxNodo8), sock);
+			break;
+		case 9:
+			gtk_container_add (GTK_CONTAINER (bxNodo6), sock);
+			//hilo9 = g_thread_new("hilo9", create, NULL);
+			//g_thread_join (hilo9);
+			break;
+		case 10:
+			gtk_container_add (GTK_CONTAINER (bxNodo10), sock);
+			//hilo10 = g_thread_new("hilo10", create, NULL);
+			//g_thread_join (hilo10);
 			break;
 		default:
+			printf("No existe box contenedor\n");
 			break;
 	}
+	sockId = gtk_socket_get_id(GTK_SOCKET(sock));
+	sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockId);
+	gtk_widget_show_all(window);
+	system(tmp);
 } // end plotData
+
+void* create(void *data)
+{
+	int sockId = 0;
+	sock = gtk_socket_new ();
+	gtk_widget_set_size_request(sock, 400, 400);
+	gtk_container_add (GTK_CONTAINER (bxNodo6), sock);
+	sockId = gtk_socket_get_id(GTK_SOCKET(sock));
+	sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockId);
+	gtk_widget_show_all(window);
+	system(tmp);
+	return NULL;
+}
 
 
 /**
@@ -754,6 +1184,54 @@ void setAddresNrf(uint8_t idNodo)
 		   	//Addres Transive
 			setAddressTx(0xA2);
 			break;
+		case 3://Nodo3
+			//Addres Receive
+			setAddressRx(0xA3);
+		   	//Addres Transive
+			setAddressTx(0xA3);
+			break;
+		case 4://Nodo4
+			//Addres Receive
+			setAddressRx(0xA4);
+		   	//Addres Transive
+			setAddressTx(0xA4);
+			break;
+		case 5://Nodo5
+			//Addres Receive
+			setAddressRx(0xA5);
+		   	//Addres Transive
+			setAddressTx(0xA5);
+			break;
+		case 6://Nodo6
+			//Addres Receive
+			setAddressRx(0xA6);
+		   	//Addres Transive
+			setAddressTx(0xA6);
+			break;
+		case 7://Nodo7
+			//Addres Receive
+			setAddressRx(0xA7);
+		   	//Addres Transive
+			setAddressTx(0xA7);
+			break;
+		case 8://Nodo8
+			//Addres Receive
+			setAddressRx(0xA8);
+		   	//Addres Transive
+			setAddressTx(0xA8);
+			break;
+		case 9://Nodo9
+			//Addres Receive
+			setAddressRx(0xA9);
+		   	//Addres Transive
+			setAddressTx(0xA9);
+			break;
+		case 10://Nodo10
+			//Addres Receive
+			setAddressRx(0x79);
+		   	//Addres Transive
+			setAddressTx(0x79);
+			break;
 		case 11://Estacion video
 			//Addres Receive
 			setAddressRx(0x78);
@@ -847,22 +1325,43 @@ void getTimeClock(int in[2])
 
 void showMessageMxRt(uint8_t id)
 {
+	sprintf(tmp,"Maximum number of retransmissions\nTry again\n");
 	switch(id){
 		case 1:// Message production for nodo 1
-			sprintf(tmp,"Maximum number of retransmissions\nTry again\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
 		case 2:// Message production for nodo 2
-			sprintf(tmp,"Maximum number of retransmissions\nTry again\n");
 			gtk_text_buffer_insert(tbN2, &iN2, tmp, -1);
 			break;
+		case 3:// Message production for nodo 3
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			break;
+		case 4:// Message production for nodo 4
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			break;
+		case 5:// Message production for nodo 5
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			break;
+		case 6:// Message production for nodo 6
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			break;
+		case 7:// Message production for nodo 7
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			break;
+		case 8:// Message production for nodo 8
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			break;
+		case 9:// Message production for nodo 9
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			break;
+		case 10:// Message production for nodo 10
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
+			break;
 		case 11: // message production for estacion video
-			sprintf(tmp,"Maximum number of retransmissions\nTry again\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
 			break;
 		default:
 			break;
-		
 	}
 } // end showMessageMxRxt
 
@@ -873,14 +1372,6 @@ void showMessageSnDt(uint8_t id)
 		case 1:// Message production for nodo 1
 			sprintf(tmp,"Dato enviado correctamente\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
-			break;
-		case 2:
-			//show mesage of Nodo1
-			break;
-		case 3:
-			//show mesage of Nodo2
-			break;
-		case 11: // message production for estacion video
 			break;
 		default:
 			break;
@@ -899,19 +1390,9 @@ void showMessageRcDt(uint8_t id)
 			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
-		case 2:
-			//show mesage of Nodo1
-			break;
-		case 3:
-			//show mesage of Nodo2
-			break;
-		case 11: // message production for estacion video
-			
-			break;
 		case 12:// Mensage muestreo
 			sprintf(tmp, "Inicio Muestreo Correctamente");
 			gtk_label_set_text(GTK_LABEL(lbNTM), tmp);
-			
 			break;
 		default:
 			break;
@@ -943,7 +1424,87 @@ void showMessageSync(uint8_t id)
 			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
 			gtk_text_buffer_insert(tbN2, &iN2, tmp, -1);
 			verificaSync += id;
-			break;		
+			break;
+		case 3:// Message production for nodo 3
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			gtk_widget_set_name(bSyncN3, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN3, "Start test");
+			opcBn3 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			verificaSync += id;
+			break;
+		case 4:// Message production for nodo 4
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			gtk_widget_set_name(bSyncN4, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN4, "Start test");
+			opcBn4 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			verificaSync += id;
+			break;
+		case 5:// Message production for nodo 5
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			gtk_widget_set_name(bSyncN5, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN5, "Start test");
+			opcBn5 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			verificaSync += id;
+			break;
+		case 6:// Message production for nodo 6
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			gtk_widget_set_name(bSyncN6, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN6, "Start test");
+			opcBn6 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			verificaSync += id;
+			break;
+		case 7:// Message production for nodo 7
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			gtk_widget_set_name(bSyncN7, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN7, "Start test");
+			opcBn7 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			verificaSync += id;
+			break;
+		case 8:// Message production for nodo 8
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			gtk_widget_set_name(bSyncN8, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN8, "Start test");
+			opcBn8 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			verificaSync += id;
+			break;
+		case 9:// Message production for nodo 9
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			gtk_widget_set_name(bSyncN9, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN9, "Start test");
+			opcBn9 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			verificaSync += id;
+			break;	
+		case 10:// Message production for nodo 10
+			sprintf(tmp,"Synchronization Successfully Completed\n");
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
+			gtk_widget_set_name(bSyncN10, "myButton_green");
+			gtk_button_set_label((GtkButton *)bSyncN10, "Start test");
+			opcBn10 = 2;
+			sprintf(tmp,"%02d:%02d:%02d  %02d/%02d/%02d \n",rxRec[3],rxRec[2],rxRec[1], rxRec[5],rxRec[4], rxRec[6]);
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
+			verificaSync += id;
+			break;	
 		case 11: // message production for estacion video
 			sprintf(tmp,"Synchronization Successfully Completed\n");
 			gtk_text_buffer_insert(TextBuffer, &iter, tmp, -1);
@@ -952,7 +1513,6 @@ void showMessageSync(uint8_t id)
 			break;
 		default:
 			break;
-		
 	}
 	
 } // end showMessageSync
@@ -960,14 +1520,37 @@ void showMessageSync(uint8_t id)
 
 void showMessagePruebas(uint8_t op)
 {
+	sprintf(tmp,"Test successfully completed\n");
 	switch(op){
 		case 1:
-			sprintf(tmp,"Test successfully completed\n");
 			gtk_text_buffer_insert(tbN1, &iN1, tmp, -1);
 			break;
 		case 2:
-			sprintf(tmp,"Test successfully completed\n");
 			gtk_text_buffer_insert(tbN2, &iN2, tmp, -1);
+			break;
+		case 3:
+			gtk_text_buffer_insert(tbN3, &iN3, tmp, -1);
+			break;
+		case 4:
+			gtk_text_buffer_insert(tbN4, &iN4, tmp, -1);
+			break;
+		case 5:
+			gtk_text_buffer_insert(tbN5, &iN5, tmp, -1);
+			break;
+		case 6:
+			gtk_text_buffer_insert(tbN6, &iN6, tmp, -1);
+			break;
+		case 7:
+			gtk_text_buffer_insert(tbN7, &iN7, tmp, -1);
+			break;
+		case 8:
+			gtk_text_buffer_insert(tbN8, &iN8, tmp, -1);
+			break;
+		case 9:
+			gtk_text_buffer_insert(tbN9, &iN9, tmp, -1);
+			break;
+		case 10:
+			gtk_text_buffer_insert(tbN10, &iN10, tmp, -1);
 			break;
 		default:
 			printf("Error\n");
@@ -978,33 +1561,42 @@ void showMessagePruebas(uint8_t op)
 
 void showCurrent(uint8_t op, float intensidad)
 {
+	sprintf( tmp, "Current: %.3f mA", intensidad);
 	switch(op){
 		case 1:
-			sprintf( tmp, "Current: %.3f mA", intensidad);
 			gtk_label_set_text(GTK_LABEL(lbCurrentN1), tmp);
 			break;
 		case 2:
-			sprintf( tmp, "Current: %.3f mA", intensidad);
 			gtk_label_set_text(GTK_LABEL(lbCurrentN2), tmp);
+			break;
+		case 3:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN3), tmp);
+			break;
+		case 4:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN4), tmp);
+			break;
+		case 5:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN5), tmp);
+			break;
+		case 6:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN6), tmp);
+			break;
+		case 7:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN7), tmp);
+			break;
+		case 8:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN8), tmp);
+			break;
+		case 9:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN90), tmp);
+			break;
+		case 10:
+			gtk_label_set_text(GTK_LABEL(lbCurrentN10), tmp);
 			break;
 		default:
 			break;
 	}
-	
 } // end showCurrent
-
-
-/*
-void generarGraph(GtkWidget *bx)
-{				
-	sockN1 = gtk_socket_new ();
-	gtk_widget_set_size_request(sockN1, 400, 400);
-	gtk_container_add (GTK_CONTAINER (bx), sockN1);
-	sockIdN1 = gtk_socket_get_id(GTK_SOCKET(sockN1));
-	sprintf(tmp, "gnuplot -c monitor.gp \"%x\" &\n",sockIdN1);
-	gtk_widget_show_all(window);
-	system(tmp);
-}*/
 
 
 uint8_t existFile(void)

@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <unistd.h>
 #include <time.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkx.h>
@@ -52,8 +51,16 @@ uint8_t bNrf = 0;
 */
 uint8_t opcBn1 = 1;
 uint8_t opcBn2 = 1;
+uint8_t opcBn3 = 1;
+uint8_t opcBn4 = 1;
+uint8_t opcBn5 = 1;
+uint8_t opcBn6 = 1;
+uint8_t opcBn7 = 1;
+uint8_t opcBn8 = 1;
+uint8_t opcBn9 = 1;
+uint8_t opcBn10 = 1;
 // Flag use for toogle Led
-uint8_t bBlinkLed;
+uint8_t bBlinkLed = 1;
 // Use for save only one time
 uint8_t bArchivo = 1;
 // Use for new process
@@ -78,8 +85,6 @@ dataGps data;
 FILE *archivo;
 // Variable temporal
 char tmp[1024];
-// Use for identificar socket
-int sockIdN1 = 0;
 // Work with time.h
 struct tm timeSet;
 time_t timeSec;
@@ -90,15 +95,15 @@ int timeClock[2] = {0};
 int iteratorGraph = 0;
 // Mesure time
 GTimer *timer;
-GTimer *timer1;
-double start_time;
-double end_time;
+//GTimer *timer1;
+//double start_time;
+//double end_time;
 gulong start_us = 0;
 gulong end_us = 0;
-gulong start_usTR = 0;
-gulong end_usTR = 0;
+//gulong start_usTR = 0;
+//gulong end_usTR = 0;
 uint16_t time_us = 0;
-uint16_t time_usTR = 0;
+//uint16_t time_usTR = 0;
 
 GdkRGBA color;
 
@@ -108,6 +113,7 @@ uint8_t timerMinutos = 0;
 uint8_t timerSegundos = 0;
 int sumCurrent = 0;
 uint8_t countCurrent = 0;
+float current = 0.0;
 uint8_t verificaSync = 0;
 // Usado para verificar que todo los nodos inicien la medicion
 uint8_t verificaInicioCorrecto = 0;
@@ -117,9 +123,19 @@ uint8_t verificaInicioCorrecto = 0;
  * @brief Variable for GUI
  * 
  */
+GtkBuilder      *builder; 
+GtkWidget       *window;
 GtkWidget 		*lbTime ;
 GtkWidget 		*lbCurrentN1;
 GtkWidget 		*lbCurrentN2;
+GtkWidget 		*lbCurrentN3;
+GtkWidget 		*lbCurrentN4;
+GtkWidget 		*lbCurrentN5;
+GtkWidget 		*lbCurrentN6;
+GtkWidget 		*lbCurrentN7;
+GtkWidget 		*lbCurrentN8;
+GtkWidget 		*lbCurrentN90;
+GtkWidget 		*lbCurrentN10;
 GtkWidget 		*lbDate ;
 GtkWidget 		*lbLatitud ;
 GtkWidget 		*lbLongitud ;
@@ -149,7 +165,7 @@ GtkTextBuffer	*tbN7;
 GtkTextBuffer	*tbN8;
 GtkTextBuffer	*tbN9;
 GtkTextBuffer	*tbN10;
-GtkWidget	 	*fSinc;
+GtkWidget	 	*fSinc = NULL;
 GtkTextIter  	iter ;
 GtkTextIter  	iN1 ;
 GtkTextIter  	iN2 ;
@@ -166,6 +182,14 @@ GtkWidget		*fNodo1;
 GtkWidget		*button;
 GtkWidget		*bSyncN1;
 GtkWidget		*bSyncN2;
+GtkWidget		*bSyncN3;
+GtkWidget		*bSyncN4;
+GtkWidget		*bSyncN5;
+GtkWidget		*bSyncN6;
+GtkWidget		*bSyncN7;
+GtkWidget		*bSyncN8;
+GtkWidget		*bSyncN9;
+GtkWidget		*bSyncN10;
 GtkWidget		*bSyncVideo;
 GtkWidget		*sbHoras;
 GtkWidget		*sbMinutos;
@@ -175,10 +199,10 @@ GtkWidget		*bxNodo2;
 GtkWidget		*bxNodo3;
 GtkWidget		*bxNodo4;
 GtkWidget		*bxNodo5;
-GtkWidget		*bxNodo6;
+GtkWidget		*bxNodo60;
 GtkWidget		*bxNodo7;
 GtkWidget		*bxNodo8;
-GtkWidget		*bxNodo9;
+GtkWidget		*bxNodo6 = NULL;
 GtkWidget		*bxNodo10;
 
 /**
@@ -197,7 +221,7 @@ void on_bSyncN7_clicked();
 void on_bSyncN8_clicked();
 void on_bSyncN9_clicked();
 void on_bSyncN10_clicked();
-void bipMuestreo_clicked();
+void on_bipMuestreo_clicked();
 void blinkLed();
 void interrupcionNRF();
 gboolean showDataGps();
@@ -218,6 +242,7 @@ void showCurrent(uint8_t op, float intencidad);
 void generarGrafica(uint8_t idN);
 void plotData(uint8_t id);
 void sendPulseMesure(uint8_t device);
+void* create(void *data);
 #endif
 /**
  * @brief End file main.h
