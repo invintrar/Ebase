@@ -74,7 +74,7 @@ void RF24L01_setup(uint8_t *tx_addr, uint8_t *rx_addr, uint8_t channel)
 	RF24L01_reg_SETUP_RETR_content SETUP_RETR;
 	*((uint8_t *)&SETUP_RETR) = 0;
 	// Auto Retransmit Count(Up to 10 Re-Transmit on fail of AA)
-	SETUP_RETR.ARC = 0x02;
+	SETUP_RETR.ARC = 0x0A;
 	// Auto Retransmit Delay(wait 500uS)
 	SETUP_RETR.ARD = 0x01;
 	RF24L01_write_register(RF24L01_reg_SETUP_RETR, ((uint8_t *)&SETUP_RETR), 1);
@@ -91,8 +91,8 @@ void RF24L01_setup(uint8_t *tx_addr, uint8_t *rx_addr, uint8_t channel)
 	*((uint8_t *)&RF_SETUP) = 0;
 	//Set RF output power in TX mode('11' - 0dBm)
 	RF_SETUP.RF_PWR     = 0x03;
-	//Speed data rata 2Mbps
-	RF_SETUP.RF_DR_HIGH = 0x01;
+	//Speed data rata 250Kbps
+	RF_SETUP.RF_DR_LOW = 0x01;
 	RF24L01_write_register(RF24L01_reg_RF_SETUP, ((uint8_t *)&RF_SETUP), 1);
 
 	// Escribimos la direccion RX en Pipe0(0x0A)

@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
+#include <setjmp.h>
 #include <sys/mman.h>
 #include "nrf24l01.h"
 #include "gps.h"
@@ -41,14 +42,16 @@
  * @brief Variable global use in the program
  * 
  */
-// Flag for control NRF24L01+
-uint8_t bNrf = 0;
 /* 
+*  Flag for control NRF24L01+
 *  Usado para el boton multiestado 
 *  1: Sincronizar
 *  2: Iniciar Prueba 
 *  3: Apagar modulo NRF
 */
+uint8_t bNrf = 0;
+
+
 uint8_t opcBn1 = 1;
 uint8_t opcBn2 = 1;
 uint8_t opcBn3 = 1;
@@ -167,16 +170,27 @@ GtkTextBuffer	*tbN9;
 GtkTextBuffer	*tbN10;
 GtkWidget	 	*fSinc = NULL;
 GtkTextIter  	iter ;
+GtkTextMark     *mIter;
 GtkTextIter  	iN1 ;
+GtkTextMark     *mN1;
 GtkTextIter  	iN2 ;
+GtkTextMark     *mN2;
 GtkTextIter  	iN3 ;
+GtkTextMark     *mN3;
 GtkTextIter  	iN4 ;
+GtkTextMark     *mN4;
 GtkTextIter  	iN5 ;
+GtkTextMark     *mN5;
 GtkTextIter  	iN6 ;
+GtkTextMark     *mN6;
 GtkTextIter  	iN7 ;
+GtkTextMark     *mN7;
 GtkTextIter  	iN8 ;
+GtkTextMark     *mN8;
 GtkTextIter  	iN9 ;
+GtkTextMark     *mN9;
 GtkTextIter  	iN10 ;
+GtkTextMark     *mN10;
 GtkWidget	 	*sock;
 GtkWidget		*fNodo1;
 GtkWidget		*button;
@@ -233,8 +247,6 @@ void setClock(clockid_t clock, time_t tSec, long tnSec);
 void getTimeClock(int in[2]);
 void taskMaster(uint8_t opt);
 void showMessageMxRt(uint8_t id);
-void showMessageSnDt(uint8_t id);
-void showMessageRcDt(uint8_t id);
 void showMessageSync(uint8_t id);
 void showMessagePruebas(uint8_t op);
 uint8_t existFile(void);
